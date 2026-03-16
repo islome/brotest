@@ -392,23 +392,21 @@ export default function MainPage() {
         {/* ══ HERO ══ */}
         <section className="px-5 pt-16 pb-14 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-20">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Badge */}
             <div className="fade-up-1 inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold px-4 py-2 rounded-full mb-8">
               <span className="dot-pulse w-1.5 h-1.5 bg-indigo-500 rounded-full" />
               O'zbekistonda #1 avtoulov guvohnomasi platformasi
             </div>
 
-            {/* Headline */}
             <div className="fade-up-2 mb-6">
               <h1
                 className="font-syne text-slate-900 leading-[1.02] tracking-[-0.035em] m-0"
-                style={{ fontSize: "clamp(48px,10vw,100px)" }}
+                style={{ fontSize: "clamp(32px, 7vw, 100px)" }}
               >
                 Haydovchilik
               </h1>
               <h1
                 className="font-syne text-indigo-600 leading-[1.02] tracking-[-0.035em] m-0 inline-block relative"
-                style={{ fontSize: "clamp(48px,10vw,100px)" }}
+                style={{ fontSize: "clamp(32px, 7vw, 100px)" }}
               >
                 guvohnomasini
                 <svg
@@ -427,13 +425,12 @@ export default function MainPage() {
               </h1>
               <h1
                 className="font-syne text-slate-900 leading-[1.02] tracking-[-0.035em] m-0"
-                style={{ fontSize: "clamp(48px,10vw,100px)" }}
+                style={{ fontSize: "clamp(22px, 7vw, 100px)" }}
               >
                 oling!
               </h1>
             </div>
 
-            {/* Subtitle */}
             <p className="fade-up-3 text-slate-500 leading-relaxed mx-auto mb-10 max-w-lg text-base sm:text-lg">
               Real savollarga asoslangan testlar, tezkor natijalar va kuzatuv
               statistikasi. Imtihonga tayyor bo'ling.
@@ -499,7 +496,7 @@ export default function MainPage() {
                 sub: "real imtihon savollari",
               },
               {
-                val: uCount || "1200+",
+                val: uCount || "1.2K+",
                 label: "Foydalanuvchilar",
                 sub: "ro'yxatdan o'tgan",
               },
@@ -668,7 +665,7 @@ export default function MainPage() {
                 { href: "/test", l: "Test" },
                 { href: "/signs", l: "Yo'l belgilari" },
                 { href: "/profile", l: "Profil" },
-                { href: "/auth", l: "Kirish" },
+                ...(!user ? [{ href: "/auth", l: "Kirish" }] : []),
               ].map((x) => (
                 <a
                   key={x.href}
