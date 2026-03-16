@@ -741,210 +741,172 @@ export default function StreetSignsPage() {
         </div>
       </div>
 
-      {/* ── Detail Modal ── */}
-      {selected && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setSelected(null);
-          }}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(15,23,42,.55)",
-            backdropFilter: "blur(6px)",
-            zIndex: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 16,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              borderRadius: 24,
-              width: "100%",
-              maxWidth: 400,
-              boxShadow: "0 24px 64px rgba(0,0,0,.2)",
-              animation: "modalIn .25s cubic-bezier(.22,1,.36,1)",
-              overflow: "hidden",
-            }}
-          >
-            {(() => {
-              const meta = CAT_META[selected.category];
-              return (
-                <>
-                  {/* Image area */}
-                  <div
+      {selected &&
+        (() => {
+          const meta = CAT_META[selected.category];
+          const url = imgUrl(selected.image);
+          return (
+            <div
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setSelected(null);
+              }}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(15,23,42,.55)",
+                backdropFilter: "blur(6px)",
+                zIndex: 50,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 16,
+              }}
+            >
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: 24,
+                  width: "100%",
+                  maxWidth: 480,
+                  boxShadow: "0 24px 64px rgba(0,0,0,.2)",
+                  animation: "modalIn .25s cubic-bezier(.22,1,.36,1)",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Image area — katta, to'liq kenglikda */}
+                <div
+                  style={{
+                    background: meta.bg,
+                    width: "100%",
+                    aspectRatio: "1 / 0.9",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    padding: "10%",
+                  }}
+                >
+                  {/* X — yuqori o'ngda, to'liq yumaloq */}
+                  <button
+                    onClick={() => setSelected(null)}
                     style={{
-                      background: meta.bg,
-                      padding: "32px",
+                      position: "absolute",
+                      top: 12,
+                      right: 12,
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      border: "1px solid " + meta.border,
+                      background: "white",
+                      cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      position: "relative",
-                      minHeight: 180,
+                      color: "#64748b",
+                      boxShadow: "0 2px 6px rgba(0,0,0,.08)",
+                      transition: "background .15s",
                     }}
+                    onMouseEnter={(e) =>
+                      ((e.currentTarget as HTMLElement).style.background =
+                        "#f8fafc")
+                    }
+                    onMouseLeave={(e) =>
+                      ((e.currentTarget as HTMLElement).style.background =
+                        "white")
+                    }
                   >
-                    <button
-                      onClick={() => setSelected(null)}
-                      style={{
-                        position: "absolute",
-                        top: 12,
-                        right: 12,
-                        width: 30,
-                        height: 60,
-                        borderRadius: 9,
-                        border: "1px solid " + meta.border,
-                        background: "white",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#64748b",
-                      }}
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      viewBox="0 0 24 24"
                     >
-                      <svg
-                        width="12"
-                        height="12"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
-                    {imgUrl(selected.image) ? (
-                      <img
-                        src={imgUrl(selected.image)!}
-                        alt={selected.name}
-                        style={{
-                          maxWidth: 140,
-                          maxHeight: 140,
-                          objectFit: "contain",
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: 100,
-                          height: 100,
-                          background: meta.border,
-                          borderRadius: 20,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                      </div>
-                    )}
-                  </div>
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
 
-                  {/* Info */}
-                  <div style={{ padding: "20px 24px 24px" }}>
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 5,
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: meta.text,
-                        background: meta.bg,
-                        border: "1px solid " + meta.border,
-                        padding: "3px 10px",
-                        borderRadius: 999,
-                        marginBottom: 10,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 5,
-                          height: 5,
-                          borderRadius: "50%",
-                          background: meta.dot,
-                          display: "inline-block",
-                        }}
-                      />
-                      {selected.category}
-                    </span>
-                    <h3
-                      className="fs"
-                      style={{
-                        fontSize: 20,
-                        color: "#0f172a",
-                        margin: "0 0 10px",
-                        letterSpacing: "-0.02em",
-                        lineHeight: 1.25,
-                      }}
-                    >
-                      {selected.name}
-                    </h3>
-                    {selected.description && (
-                      <p
-                        style={{
-                          fontSize: 14,
-                          color: "#475569",
-                          lineHeight: 1.65,
-                          margin: 0,
-                        }}
-                      >
-                        {selected.description}
-                      </p>
-                    )}
-                    {!selected.description && (
-                      <p
-                        style={{
-                          fontSize: 13,
-                          color: "#94a3b8",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        Tavsif qo'shilmagan
-                      </p>
-                    )}
-
-                    <button
-                      onClick={() => setSelected(null)}
+                  {url ? (
+                    <img
+                      src={url}
+                      alt={selected.name}
                       style={{
                         width: "100%",
-                        marginTop: 20,
-                        background: "#4f46e5",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 14,
-                        padding: "12px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        boxShadow: "0 4px 14px rgba(79,70,229,.3)",
-                        transition: "background .15s",
+                        height: "100%",
+                        objectFit: "contain",
                       }}
-                      onMouseEnter={(e) =>
-                        ((e.currentTarget as HTMLElement).style.background =
-                          "#4338ca")
-                      }
-                      onMouseLeave={(e) =>
-                        ((e.currentTarget as HTMLElement).style.background =
-                          "#4f46e5")
-                      }
+                    />
+                  ) : (
+                    <span></span>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div style={{ padding: "18px 22px 22px" }}>
+                  {/* <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: meta.text,
+                      background: meta.bg,
+                      border: "1px solid " + meta.border,
+                      padding: "3px 10px",
+                      borderRadius: 999,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: "50%",
+                        background: meta.accent,
+                        display: "inline-block",
+                      }}
+                    />
+                    {selected.category}
+                  </span> */}
+
+                  <h3
+                    className="fs"
+                    style={{
+                      fontSize: 20,
+                      color: "#0f172a",
+                      margin: 0,
+                      letterSpacing: "-0.02em",
+                      lineHeight: 1.25,
+                      textAlign: "center"
+                    }}
+                  >
+                    {selected.name}
+                  </h3>
+
+                  {selected.description && (
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: "#475569",
+                        lineHeight: 1.65,
+                        margin: "10px 0 0",
+                      }}
                     >
-                      Yopish
-                    </button>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      )}
+                      {selected.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
     </>
   );
 }
 
-// ── Sign Card component ──────────────────────
 function SignCard({
   sign,
   onClick,
@@ -960,34 +922,50 @@ function SignCard({
   return (
     <button
       onClick={onClick}
-      className="sign-card lift"
+      className="sign-card"
       style={{
         background: "white",
-        border: "1px solid #e2e8f0",
+        border: "1.5px solid #e8ecf0",
         borderRadius: 16,
-        padding: "16px 12px",
+        padding: 0,
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        gap: 10,
-        textAlign: "center",
         cursor: "pointer",
-        boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-        transition: "all .2s",
+        boxShadow: "0 1px 4px rgba(0,0,0,.05)",
+        transition:
+          "transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s",
         width: "100%",
+        overflow: "hidden",
+        textAlign: "center",
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.transform = "translateY(-3px)";
+        el.style.boxShadow = "0 10px 28px rgba(0,0,0,.1)";
+        el.style.borderColor = "#c7d2fe";
+        const name = el.querySelector(".sign-name") as HTMLElement;
+        if (name) name.style.color = "#4f46e5";
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.transform = "translateY(0)";
+        el.style.boxShadow = "0 1px 4px rgba(0,0,0,.05)";
+        el.style.borderColor = "#e8ecf0";
+        const name = el.querySelector(".sign-name") as HTMLElement;
+        if (name) name.style.color = "#374151";
       }}
     >
-      {/* Image */}
+      {/* Rasm — kartochkaning 75% balandligini egallaydi */}
       <div
         style={{
-          width: 72,
-          height: 72,
+          width: "100%",
+          aspectRatio: "1 / 0.85", // kenglik:balandlik = to'g'ri to'rtburchak
           background: meta.bg,
-          borderRadius: 14,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          overflow: "hidden",
+          padding: "12%",
+          boxSizing: "border-box",
           flexShrink: 0,
         }}
       >
@@ -999,40 +977,45 @@ function SignCard({
               width: "100%",
               height: "100%",
               objectFit: "contain",
-              padding: 6,
+              display: "block",
             }}
           />
         ) : (
-          <span style={{ fontSize: 28 }}></span>
+          <span></span>
         )}
       </div>
 
-      {/* Name */}
-      <p
-        className="sign-name"
+      {/* Nom — pastki 25% */}
+      <div
         style={{
-          fontSize: 12,
-          fontWeight: 600,
-          color: "#1e293b",
-          lineHeight: 1.35,
-          margin: 0,
-          transition: "color .15s",
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "8px 10px",
+          borderTop: "1px solid #f1f5f9",
+          background: "white",
+          minHeight: 44,
         }}
       >
-        {sign.name}
-      </p>
-
-      {/* Category dot */}
-      <span
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background: meta.dot,
-          display: "inline-block",
-          flexShrink: 0,
-        }}
-      />
+        <p
+          className="sign-name"
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: "#374151",
+            lineHeight: 1.35,
+            margin: 0,
+            transition: "color .15s",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {sign.name}
+        </p>
+      </div>
     </button>
   );
 }
