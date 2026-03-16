@@ -7,6 +7,7 @@ interface LeaderEntry {
   firstname: string;
   lastname: string;
   username: string;
+  avatar_icon?: string;
   tests_count: number;
   total_correct: number;
   passed_count: number;
@@ -406,6 +407,7 @@ export default function WeeklyLeaderboard({
                             }}
                           >
                             {initials(entry)}
+                            {entry.avatar_icon}
                           </div>
                           <span
                             style={{

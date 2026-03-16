@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import WeeklyLeaderboard from "@/components/profile/WeeklyLeaderboard";
+import ProfileHero from "@/components/profile/ProfileHero";
 
 // ---------- Types ----------
 interface UserData {
@@ -11,6 +12,7 @@ interface UserData {
   lastname: string;
   username: string;
   role: string;
+  avatar_icon?: string;
   created_at: string;
 }
 
@@ -275,8 +277,6 @@ export default function ProfilePage() {
   } | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
 
-  // 2. Type (mavjud type lar bilan birga):
-
   interface WrongAnswer {
     id: number;
     question_id: number;
@@ -289,8 +289,6 @@ export default function ProfilePage() {
       explanation: string | null;
     };
   }
-
-  // 3. Image URL helper (component ichiga):
 
   function imgUrl(img: string | null) {
     if (!img) return null;
@@ -479,103 +477,17 @@ export default function ProfilePage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-5">
-        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          {/* Banner */}
-          <div className="h-24 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 relative overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle, white 1.5px, transparent 1.5px)",
-                backgroundSize: "28px 28px",
-              }}
-            />
-          </div>
-
-          <div className="px-6 pb-6">
-            <div className="flex items-end justify-between -mt-9 mb-4">
-              {/* Avatar */}
-              <div className="relative">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 border-4 border-white shadow-lg flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white select-none">
-                    {(user.firstname || user.username).charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div
-                  className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-lg ${rankObj.bg} border-2 border-white flex items-center justify-center text-sm shadow-sm`}
-                >
-                  {rankObj.icon}
-                </div>
-              </div>
-
-              {/* XP chip */}
-              <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-                <span className="text-sm font-bold text-amber-700">
-                  {stats.xp} XP
-                </span>
-              </div>
-            </div>
-
-            {/* Ism + info */}
-            <div className="mb-4">
-              <h1 className="text-xl font-bold text-slate-800">
-                {user.firstname && user.lastname
-                  ? `${user.firstname} ${user.lastname}`
-                  : user.username}
-              </h1>
-              <div className="flex flex-wrap items-center gap-2 mt-1">
-                <span className="text-sm text-slate-400">@{user.username}</span>
-                <span className="text-slate-200">·</span>
-                <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${rankObj.color} ${rankObj.bg} ${rankObj.border}`}
-                >
-                  {rankObj.icon} {rankObj.name}
-                </span>
-                {user.role === "admin" && (
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-violet-600 bg-violet-50 border-violet-200">
-                    👤 Admin
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                {fmtJoined(user.created_at)} dan beri
-              </p>
-            </div>
-
-            {/* XP progress */}
-            {nextRank ? (
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-xs text-slate-500">
-                    Keyingi:{" "}
-                    <span className="font-semibold text-slate-700">
-                      {nextRank.icon} {nextRank.name}
-                    </span>
-                  </span>
-                  <span className="text-xs font-medium text-slate-400">
-                    {stats.xp} / {nextRank.minXP} XP
-                  </span>
-                </div>
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-1000"
-                    style={{ width: `${xpProgress}%` }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-xl px-3 py-2">
-                <span>👑</span>
-                <span className="text-xs font-medium text-purple-700">
-                  Eng yuqori darajaga erishdingiz!
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+        <ProfileHero
+          user={user}
+          stats={stats}
+          rankObj={rankObj}
+          nextRank={nextRank}
+          xpProgress={xpProgress}
+          fmtJoined={fmtJoined}
+          onUserUpdate={(updated) =>
+            setUser((prev) => (prev ? { ...prev, ...updated } : prev))
+          }
+        />
 
         {!hasStats ? (
           <EmptyStats />

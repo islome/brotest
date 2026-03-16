@@ -32,6 +32,119 @@ function fmtTime(sec: number) {
   return `${m}:${s}`;
 }
 
+function Fireworks({ active }: { active: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!active) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const safeCtx = ctx;
+    const safeCanvas = canvas;
+
+    type Particle = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      alpha: number;
+      color: string;
+      size: number;
+    };
+    const COLORS = [
+      "#6366f1",
+      "#8b5cf6",
+      "#f59e0b",
+      "#10b981",
+      "#ef4444",
+      "#3b82f6",
+      "#ec4899",
+    ];
+    const particles: Particle[] = [];
+
+    function burst(x: number, y: number) {
+      for (let i = 0; i < 40; i++) {
+        const angle = (i / 40) * Math.PI * 2;
+        const speed = 2 + Math.random() * 5;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.5,
+          alpha: 1,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          size: 3 + Math.random() * 3,
+        });
+      }
+    }
+
+    function loop() {
+      safeCtx.clearRect(0, 0, safeCanvas.width, safeCanvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.1;
+        p.alpha -= 0.016;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        safeCtx.globalAlpha = p.alpha;
+        safeCtx.fillStyle = p.color;
+        safeCtx.beginPath();
+        safeCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        safeCtx.fill();
+      }
+      safeCtx.globalAlpha = 1;
+      if (particles.length > 0) rafRef.current = requestAnimationFrame(loop);
+    }
+
+    // setTimeout — DOM paint bo'lgandan keyin offsetWidth to'g'ri o'lchamni beradi
+    const t = setTimeout(() => {
+      safeCanvas.width = safeCanvas.offsetWidth || 440;
+      safeCanvas.height = safeCanvas.offsetHeight || 400;
+
+      const w = safeCanvas.width;
+      const h = safeCanvas.height;
+
+      burst(w * 0.2, h * 0.3);
+      setTimeout(() => burst(w * 0.8, h * 0.2), 250);
+      setTimeout(() => burst(w * 0.5, h * 0.4), 500);
+      setTimeout(() => burst(w * 0.15, h * 0.5), 750);
+      setTimeout(() => burst(w * 0.85, h * 0.45), 1000);
+
+      rafRef.current = requestAnimationFrame(loop);
+    }, 50);
+
+    return () => {
+      clearTimeout(t);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [active]);
+
+  // Canvas doim mount bo'ladi — active bo'lganda ko'rinadi
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 10,
+        opacity: active ? 1 : 0,
+        transition: "opacity .3s",
+      }}
+    />
+  );
+}
+
 export default function TestPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -39,7 +152,7 @@ export default function TestPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const skipRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const elapsedRef = useRef(0);
-
+  const [showFireworks, setShowFireworks] = useState(false);
   const [phase, setPhase] = useState<Phase>("start");
   const [configIdx, setConfigIdx] = useState(0);
   const [allQ, setAllQ] = useState<Question[]>([]);
@@ -145,6 +258,13 @@ export default function TestPage() {
       const correct = ans.filter((a, i) => a === questions[i]?.answer).length;
       const wrong = ans.filter((a) => a !== null).length - correct;
       const elapsed = dur ?? elapsedRef.current;
+      const pct = Math.round((correct / questions.length) * 100);
+
+      // 80% dan yuqori bo'lsa fireworks
+      if (pct >= 80) {
+        setShowFireworks(true);
+        setTimeout(() => setShowFireworks(false), 4000);
+      }
 
       const {
         data: { user },
@@ -157,8 +277,8 @@ export default function TestPage() {
             total: questions.length,
             correct,
             wrong,
-            score_percent: Math.round((correct / questions.length) * 100),
-            passed: Math.round((correct / questions.length) * 100) >= 70,
+            score_percent: pct,
+            passed: pct >= 70,
             duration_sec: elapsed,
           })
           .select()
@@ -214,9 +334,7 @@ export default function TestPage() {
     });
   }
 
-  // ══════════════════════════════════════════════
   // START SCREEN
-  // ══════════════════════════════════════════════
   if (phase === "start") {
     const cfg = CONFIGS[configIdx];
     return (
@@ -603,9 +721,7 @@ export default function TestPage() {
     );
   }
 
-  // ══════════════════════════════════════════════
   // RESULT SCREEN
-  // ══════════════════════════════════════════════
   if (phase === "result") {
     const correct = answers.filter((a, i) => a === questions[i]?.answer).length;
     const wrong = answers.filter((a) => a !== null).length - correct;
@@ -640,9 +756,13 @@ export default function TestPage() {
               boxShadow: "0 8px 32px rgba(0,0,0,.07)",
               padding: "48px 40px",
               textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
               ...anim(0),
             }}
           >
+            <Fireworks active={showFireworks} />
+
             {/* Trophy */}
             <div
               style={{
@@ -714,7 +834,7 @@ export default function TestPage() {
                   marginTop: 8,
                 }}
               >
-                {passed ? "O'tdingiz! 🎉" : "O'tmadingiz"}
+                {passed ? "O'tdingiz!" : "O'tmadingiz"}
               </p>
             </div>
 
@@ -886,9 +1006,6 @@ export default function TestPage() {
     );
   }
 
-  // ══════════════════════════════════════════════
-  // TEST SCREEN
-  // ══════════════════════════════════════════════
   const q = questions[current];
   const answered = answers[current] !== null;
   const selected = answers[current];
