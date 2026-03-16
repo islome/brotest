@@ -1116,10 +1116,10 @@ export default function TestPage() {
         <div
           style={{
             flex: 1,
-            maxWidth: 900,
+            maxWidth: 960,
             margin: "0 auto",
             width: "100%",
-            padding: "36px 24px 120px",
+            padding: "28px 20px 120px",
           }}
         >
           {/* Meta row */}
@@ -1128,38 +1128,40 @@ export default function TestPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: 20,
+              marginBottom: 16,
             }}
           >
-            <p style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8" }}>
-              Savol <span style={{ color: "#0f172a" }}>{current + 1}</span> /{" "}
-              {questions.length}
-            </p>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              {/* Skip countdown */}
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>
+              Savol{" "}
+              <span style={{ color: "#0f172a", fontSize: 15 }}>
+                {current + 1}
+              </span>
+              <span style={{ color: "#cbd5e1" }}> / {questions.length}</span>
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {skipCountdown !== null && (
                 <div
                   className="fade-in"
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 8,
+                    gap: 7,
                     background: "#eef2ff",
                     border: "1px solid #c7d2fe",
-                    borderRadius: 12,
-                    padding: "6px 14px",
+                    borderRadius: 10,
+                    padding: "5px 12px",
                   }}
                 >
                   <span
-                    style={{ fontSize: 13, fontWeight: 600, color: "#4338ca" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "#4338ca" }}
                   >
                     Keyingisi {skipCountdown}s
                   </span>
                   <button
                     onClick={cancelSkip}
                     style={{
-                      width: 18,
-                      height: 18,
+                      width: 16,
+                      height: 16,
                       borderRadius: "50%",
                       background: "#c7d2fe",
                       border: "none",
@@ -1171,8 +1173,8 @@ export default function TestPage() {
                     }}
                   >
                     <svg
-                      width="9"
-                      height="9"
+                      width="8"
+                      height="8"
                       fill="none"
                       stroke="#4338ca"
                       strokeWidth="2.5"
@@ -1184,26 +1186,25 @@ export default function TestPage() {
                   </button>
                 </div>
               )}
-              {/* Timer */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 7,
+                  gap: 6,
                   background: timeWarn ? "#fff1f2" : "white",
                   border: `1px solid ${timeWarn ? "#fca5a5" : "#e2e8f0"}`,
-                  borderRadius: 12,
-                  padding: "8px 14px",
+                  borderRadius: 10,
+                  padding: "7px 12px",
                   fontFamily: "monospace",
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: 700,
                   color: timeWarn ? "#ef4444" : "#334155",
                   transition: "all .3s",
                 }}
               >
                 <svg
-                  width="13"
-                  height="13"
+                  width="12"
+                  height="12"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -1220,10 +1221,10 @@ export default function TestPage() {
           {/* Progress bar */}
           <div
             style={{
-              height: 4,
+              height: 3,
               background: "#e2e8f0",
               borderRadius: 999,
-              marginBottom: 28,
+              marginBottom: 20,
               overflow: "hidden",
             }}
           >
@@ -1242,10 +1243,10 @@ export default function TestPage() {
           {skipCountdown !== null && (
             <div
               style={{
-                height: 3,
+                height: 2,
                 background: "#e2e8f0",
                 borderRadius: 999,
-                marginBottom: 20,
+                marginBottom: 16,
                 overflow: "hidden",
               }}
             >
@@ -1261,294 +1262,333 @@ export default function TestPage() {
             </div>
           )}
 
-          {/* Question + image grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: q.image ? "1fr 1fr" : "1fr",
-              gap: 20,
-              marginBottom: 20,
-              alignItems: "start",
-            }}
-          >
-            {/* Left: question box */}
-            <div
-              style={{
-                background: "white",
-                borderRadius: 20,
-                border: "1px solid #e2e8f0",
-                padding: "24px 28px",
-                boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-              }}
-            >
-              <p
-                className="fs"
-                style={{
-                  fontSize: "clamp(18px,2.5vw,22px)",
-                  color: "#0f172a",
-                  lineHeight: 1.4,
-                  letterSpacing: "-0.01em",
-                  margin: 0,
-                }}
-              >
-                {q.question}
-              </p>
-            </div>
+          {/* ── DESKTOP: 2 ustun | MOBILE: 1 ustun ── */}
+          <div className="test-layout">
+            {/* ── CHAP (desktop) / YUQORI (mobile): savol + variantlar ── */}
+            <div className="test-left">
+              {/* Mobile: rasm savol USTIDA */}
+              {q.image && (
+                <div className="test-img-mobile">
+                  <img
+                    src={imgUrl(q.image) ?? ""}
+                    alt="savol rasmi"
+                    style={{
+                      width: "100%",
+                      display: "block",
+                      objectFit: "contain",
+                      maxHeight: 220,
+                      borderRadius: "18px 18px 0 0",
+                    }}
+                  />
+                </div>
+              )}
 
-            {/* Right: image */}
-            {q.image && (
+              {/* Savol kartochkasi */}
               <div
                 style={{
                   background: "white",
-                  borderRadius: 20,
+                  borderRadius: 18,
                   border: "1px solid #e2e8f0",
-                  overflow: "hidden",
+                  padding: "20px 22px 20px 18px",
                   boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-                  minHeight: 200,
+                  display: "flex",
+                  gap: 14,
+                  alignItems: "flex-start",
                 }}
               >
-                <img
-                  src={imgUrl(q.image) ?? ""}
-                  alt="savol rasmi"
+                <div style={{ flex: 1 }}>
+                  <p
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "clamp(15px, 1.8vw, 19px)",
+                      fontWeight: 600,
+                      color: "#0f172a",
+                      lineHeight: 1.6,
+                      letterSpacing: "-0.01em",
+                      margin: 0,
+                    }}
+                  >
+                    {q.question}
+                  </p>
+                </div>
+              </div>
+
+              {/* Variantlar */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                {q.options.map((opt, idx) => {
+                  const isSelected = selected === idx;
+                  const isCorrect = idx === q.answer;
+                  const isWrong = answered && isSelected && !isCorrect;
+
+                  let bg = "white",
+                    border = "#e2e8f0",
+                    color = "#334155",
+                    radioB = "#e2e8f0",
+                    opacity = 1;
+
+                  if (answered) {
+                    if (isCorrect) {
+                      bg = "#f0fdf4";
+                      border = "#4ade80";
+                      color = "#14532d";
+                      radioB = "#22c55e";
+                    } else if (isWrong) {
+                      bg = "#fff1f2";
+                      border = "#f87171";
+                      color = "#7f1d1d";
+                      radioB = "#ef4444";
+                    } else {
+                      opacity = 0.4;
+                    }
+                  } else if (isSelected) {
+                    bg = "#eef2ff";
+                    border = "#6366f1";
+                    color = "#1e1b4b";
+                    radioB = "#6366f1";
+                  }
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleAnswer(idx)}
+                      disabled={answered}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        padding: "12px 16px",
+                        borderRadius: 14,
+                        border: `2px solid ${border}`,
+                        background: bg,
+                        cursor: answered ? "default" : "pointer",
+                        textAlign: "left",
+                        transition: "all .18s",
+                        opacity,
+                        boxShadow:
+                          answered && isCorrect
+                            ? "0 3px 12px rgba(34,197,94,.15)"
+                            : "none",
+                        width: "100%",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!answered) {
+                          (e.currentTarget as HTMLElement).style.borderColor =
+                            "#6366f1";
+                          (e.currentTarget as HTMLElement).style.background =
+                            "#eef2ff";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!answered) {
+                          (e.currentTarget as HTMLElement).style.borderColor =
+                            "#e2e8f0";
+                          (e.currentTarget as HTMLElement).style.background =
+                            "white";
+                        }
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          border: `2.5px solid ${radioB}`,
+                          background:
+                            answered && (isCorrect || isWrong)
+                              ? radioB
+                              : "transparent",
+                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "all .18s",
+                        }}
+                      >
+                        {answered && isCorrect && (
+                          <svg
+                            width="10"
+                            height="10"
+                            fill="none"
+                            stroke="white"
+                            strokeWidth="3"
+                            viewBox="0 0 24 24"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                        {answered && isWrong && (
+                          <svg
+                            width="8"
+                            height="8"
+                            fill="none"
+                            stroke="white"
+                            strokeWidth="3"
+                            viewBox="0 0 24 24"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        )}
+                        {!answered && isSelected && (
+                          <div
+                            style={{
+                              width: 9,
+                              height: 9,
+                              borderRadius: "50%",
+                              background: "#6366f1",
+                            }}
+                          />
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: 8,
+                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 11,
+                          fontWeight: 800,
+                          background: answered
+                            ? isCorrect
+                              ? "#dcfce7"
+                              : isWrong
+                                ? "#fee2e2"
+                                : "#f1f5f9"
+                            : isSelected
+                              ? "#e0e7ff"
+                              : "#f1f5f9",
+                          color: answered
+                            ? isCorrect
+                              ? "#16a34a"
+                              : isWrong
+                                ? "#dc2626"
+                                : "#94a3b8"
+                            : isSelected
+                              ? "#4338ca"
+                              : "#94a3b8",
+                        }}
+                      >
+                        {String.fromCharCode(65 + idx)}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color,
+                          flex: 1,
+                          lineHeight: 1.45,
+                          textAlign: "left",
+                        }}
+                      >
+                        {opt}
+                      </span>
+                      {answered && isCorrect && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#16a34a",
+                            background: "#dcfce7",
+                            padding: "2px 9px",
+                            borderRadius: 20,
+                            flexShrink: 0,
+                          }}
+                        >
+                          To'g'ri ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Explanation */}
+              {answered && q.explanation && (
+                <div
+                  className="fade-in"
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    display: "block",
+                    background: "#eff6ff",
+                    border: "1px solid #bfdbfe",
+                    borderRadius: 14,
+                    padding: "12px 16px",
+                    display: "flex",
+                    gap: 10,
                   }}
-                />
+                >
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "#1e40af",
+                      lineHeight: 1.6,
+                      margin: 0,
+                    }}
+                  >
+                    {q.explanation}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* ── O'NG (faqat desktop): rasm ── */}
+            {q.image && (
+              <div className="test-img-desktop">
+                <div
+                  style={{
+                    position: "sticky",
+                    top: 76,
+                    background: "white",
+                    borderRadius: 18,
+                    border: "1px solid #e2e8f0",
+                    overflow: "hidden",
+                    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+                  }}
+                >
+                  <img
+                    src={imgUrl(q.image) ?? ""}
+                    alt="savol rasmi"
+                    style={{
+                      width: "100%",
+                      display: "block",
+                      objectFit: "contain",
+                      maxHeight: 340,
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
-
-          {/* Options */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {q.options.map((opt, idx) => {
-              const isSelected = selected === idx;
-              const isCorrect = idx === q.answer;
-              const isWrong = answered && isSelected && !isCorrect;
-
-              // Colors
-              let bg = "white";
-              let border = "#e2e8f0";
-              let color = "#334155";
-              let radioB = "#e2e8f0";
-              let radioFill = "transparent";
-              let opacity = 1;
-
-              if (answered) {
-                if (isCorrect) {
-                  bg = "#f0fdf4";
-                  border = "#4ade80";
-                  color = "#14532d";
-                  radioB = "#22c55e";
-                  radioFill = "#22c55e";
-                } else if (isWrong) {
-                  bg = "#fff1f2";
-                  border = "#f87171";
-                  color = "#7f1d1d";
-                  radioB = "#ef4444";
-                  radioFill = "#ef4444";
-                } else {
-                  opacity = 0.45;
-                }
-              } else if (isSelected) {
-                bg = "#eef2ff";
-                border = "#6366f1";
-                color = "#1e1b4b";
-                radioB = "#6366f1";
-                radioFill = "#6366f1";
-              }
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleAnswer(idx)}
-                  disabled={answered}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 16,
-                    padding: "16px 22px",
-                    borderRadius: 16,
-                    border: `2px solid ${border}`,
-                    background: bg,
-                    cursor: answered ? "default" : "pointer",
-                    textAlign: "left",
-                    transition: "all .2s",
-                    opacity,
-                    boxShadow:
-                      answered && isCorrect
-                        ? "0 4px 16px rgba(34,197,94,.15)"
-                        : "none",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!answered) {
-                      (e.currentTarget as HTMLElement).style.borderColor =
-                        "#6366f1";
-                      (e.currentTarget as HTMLElement).style.background =
-                        "#eef2ff";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!answered) {
-                      (e.currentTarget as HTMLElement).style.borderColor =
-                        "#e2e8f0";
-                      (e.currentTarget as HTMLElement).style.background =
-                        "white";
-                    }
-                  }}
-                >
-                  {/* Radio */}
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: "50%",
-                      border: `2.5px solid ${radioB}`,
-                      background:
-                        answered && (isCorrect || isWrong)
-                          ? radioFill
-                          : "transparent",
-                      flexShrink: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "all .2s",
-                    }}
-                  >
-                    {answered && isCorrect && (
-                      <svg
-                        width="11"
-                        height="11"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        viewBox="0 0 24 24"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                    {answered && isWrong && (
-                      <svg
-                        width="9"
-                        height="9"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        viewBox="0 0 24 24"
-                      >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    )}
-                    {!answered && isSelected && (
-                      <div
-                        style={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          background: "#6366f1",
-                        }}
-                      />
-                    )}
-                  </div>
-
-                  {/* Option label */}
-                  <span
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: 8,
-                      background: answered
-                        ? isCorrect
-                          ? "#dcfce7"
-                          : isWrong
-                            ? "#fee2e2"
-                            : "#f1f5f9"
-                        : isSelected
-                          ? "#e0e7ff"
-                          : "#f1f5f9",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: answered
-                        ? isCorrect
-                          ? "#16a34a"
-                          : isWrong
-                            ? "#dc2626"
-                            : "#94a3b8"
-                        : isSelected
-                          ? "#4338ca"
-                          : "#94a3b8",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {String.fromCharCode(65 + idx)}
-                  </span>
-
-                  <span
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500,
-                      color,
-                      flex: 1,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {opt}
-                  </span>
-
-                  {answered && isCorrect && (
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "#16a34a",
-                        background: "#dcfce7",
-                        padding: "3px 10px",
-                        borderRadius: 20,
-                        flexShrink: 0,
-                      }}
-                    >
-                      To'g'ri ✓
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Explanation */}
-          {answered && q.explanation && (
-            <div
-              className="fade-in"
-              style={{
-                marginTop: 16,
-                background: "#eff6ff",
-                border: "1px solid #bfdbfe",
-                borderRadius: 16,
-                padding: "16px 20px",
-                display: "flex",
-                gap: 12,
-              }}
-            >
-              <span style={{ fontSize: 18, flexShrink: 0 }}>💡</span>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: "#1e40af",
-                  lineHeight: 1.6,
-                  margin: 0,
-                }}
-              >
-                {q.explanation}
-              </p>
-            </div>
-          )}
         </div>
+
+        {/* ── Responsive styles ── */}
+        <style>{`
+  .test-layout {
+    display: grid;
+    grid-template-columns: ${q.image ? "1fr 360px" : "1fr"};
+    gap: 16px;
+    align-items: start;
+  }
+  .test-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  /* Mobile: rasm ustida ko'rinadi */
+  .test-img-mobile  { display: none; }
+  .test-img-desktop { display: block; }
+
+  /* Mobile breakpoint */
+  @media (max-width: 640px) {
+    .test-layout {
+      grid-template-columns: 1fr !important;
+    }
+    .test-img-mobile  { display: block; }
+    .test-img-desktop { display: none;  }
+  }
+`}</style>
 
         {/* ── BOTTOM BAR ── */}
         <div

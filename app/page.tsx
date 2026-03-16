@@ -677,7 +677,7 @@ export default function MainPage() {
               ))}
               {user?.role === "admin" && (
                 <a
-                  href="/admin"
+                  href="/admin/addQuestion"
                   className="text-xs text-violet-500 hover:text-violet-700 transition-colors no-underline"
                 >
                   Admin
