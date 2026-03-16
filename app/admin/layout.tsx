@@ -30,7 +30,7 @@ export default async function AdminLayout({
           </div>
           <div className="flex items-center gap-4">
             <span className="text-xs text-gray-400 hidden sm:block">{user.email}</span>
-            <a href="/" className="text-xs text-gray-400 hover:text-blue-600 transition">Test →</a>
+            <a href="/test" className="text-xs text-gray-400 hover:text-blue-600 transition">Test →</a>
             <LogoutButton />
           </div>
         </div>
