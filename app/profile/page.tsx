@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import WeeklyLeaderboard from "@/components/profile/WeeklyLeaderboard";
 
 // ---------- Types ----------
 interface UserData {
@@ -478,7 +479,6 @@ export default function ProfilePage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-5">
-        {/* ── Hero card ── */}
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           {/* Banner */}
           <div className="h-24 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 relative overflow-hidden">
@@ -577,12 +577,10 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* ── Statistika bloki ── */}
         {!hasStats ? (
           <EmptyStats />
         ) : (
           <>
-            {/* 4 stat card */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <StatCard
                 label="Jami testlar"
@@ -653,7 +651,6 @@ export default function ProfilePage() {
               />
             </div>
 
-            {/* 2 donut chart */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Aniqlik */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
@@ -714,7 +711,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Testlar tarixi */}
             <div
               style={{
                 background: "white",
@@ -1499,7 +1495,6 @@ export default function ProfilePage() {
           </>
         )}
 
-        {/* ── Rank tizimi ── */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-50">
             <h2 className="font-semibold text-slate-800 text-sm">
@@ -1534,6 +1529,8 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+
+        <WeeklyLeaderboard currentUserId={user.id} />
       </main>
     </div>
   );

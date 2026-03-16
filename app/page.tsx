@@ -499,7 +499,7 @@ export default function MainPage() {
                 sub: "real imtihon savollari",
               },
               {
-                val: uCount || "—",
+                val: uCount || "1200+",
                 label: "Foydalanuvchilar",
                 sub: "ro'yxatdan o'tgan",
               },
