@@ -328,181 +328,167 @@ export default function StreetSignsPage() {
 
             {/* Search */}
             <div
-              style={{ position: "relative", maxWidth: 420, margin: "0 auto" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "0 24px 28px",
+                maxWidth: 1100,
+                margin: "0 auto",
+                ...anim(100),
+              }}
             >
-              <span
-                style={{
-                  position: "absolute",
-                  left: 14,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#94a3b8",
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
+              {/* Search */}
+              <div style={{ position: "relative", flex: 1 }}>
+                <span
+                  style={{
+                    position: "absolute",
+                    left: 14,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#94a3b8",
+                    display: "flex",
+                  }}
                 >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                placeholder="Belgi qidirish..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{
-                  width: "100%",
-                  boxSizing: "border-box",
-                  background: "white",
-                  border: "2px solid #e2e8f0",
-                  borderRadius: 14,
-                  padding: "12px 14px 12px 42px",
-                  fontSize: 14,
-                  color: "#0f172a",
-                  outline: "none",
-                  boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-                  transition: "border-color .2s",
-                  fontFamily: "inherit",
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "#6366f1")}
-                onBlur={(e) => (e.currentTarget.style.borderColor = "#e2e8f0")}
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="Belgi qidirish..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    width: "100%",
+                    boxSizing: "border-box",
+                    background: "white",
+                    border: "2px solid #e2e8f0",
+                    borderRadius: 12,
+                    padding: "10px 14px 10px 42px",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: "#0f172a",
+                    outline: "none",
+                    transition: "border-color .2s",
+                    fontFamily: "inherit",
+                    height: 42,
+                  }}
+                  onFocus={(e) =>
+                    (e.currentTarget.style.borderColor = "#6366f1")
+                  }
+                  onBlur={(e) =>
+                    (e.currentTarget.style.borderColor = "#e2e8f0")
+                  }
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch("")}
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "#f1f5f9",
+                      border: "none",
+                      borderRadius: 6,
+                      width: 22,
+                      height: 22,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#64748b",
+                    }}
+                  >
+                    <svg
+                      width="10"
+                      height="10"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      viewBox="0 0 24 24"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Category select */}
+              <div style={{ position: "relative", flexShrink: 0 }}>
+                <select
+                  value={activeTab}
+                  onChange={(e) =>
+                    setActiveTab(
+                      e.target.value as Parameters<typeof setActiveTab>[0],
+                    )
+                  }
+                  style={{
+                    appearance: "none",
+                    WebkitAppearance: "none",
+                    height: 42,
+                    padding: "0 38px 0 14px",
+                    borderRadius: 12,
+                    border: "2px solid #e2e8f0",
+                    background: "white",
+                    color: "#1e293b",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    minWidth: 200,
+                    outline: "none",
+                    transition: "border-color .2s",
+                    fontFamily: "inherit",
+                  }}
+                  onFocus={(e) =>
+                    (e.currentTarget.style.borderColor = "#6366f1")
+                  }
+                  onBlur={(e) =>
+                    (e.currentTarget.style.borderColor = "#e2e8f0")
+                  }
+                >
+                  <option value="all">🗂 Barchasi ({signs.length})</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat} ({counts[cat] ?? 0})
+                    </option>
+                  ))}
+                </select>
+                <svg
                   style={{
                     position: "absolute",
                     right: 12,
                     top: "50%",
                     transform: "translateY(-50%)",
-                    background: "#f1f5f9",
-                    border: "none",
-                    borderRadius: 6,
-                    width: 22,
-                    height: 22,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#64748b",
+                    pointerEvents: "none",
                   }}
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
                 >
-                  <svg
-                    width="10"
-                    height="10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
-              )}
+                  <path
+                    d="M4 6l4 4 4-4"
+                    stroke="#64748b"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </section>
-
-        {/* Category tabs */}
-        <div style={{ padding: "0 24px 28px", ...anim(100) }}>
-          <div
-            style={{
-              maxWidth: 1100,
-              margin: "0 auto",
-              display: "flex",
-              gap: 8,
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
-            <button
-              onClick={() => setActiveTab("all")}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 7,
-                padding: "8px 16px",
-                borderRadius: 12,
-                border: `2px solid ${activeTab === "all" ? "#4f46e5" : "#e2e8f0"}`,
-                background: activeTab === "all" ? "#4f46e5" : "white",
-                color: activeTab === "all" ? "white" : "#64748b",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all .2s",
-              }}
-            >
-              <span>🗂</span> Barchasi
-              <span
-                style={{
-                  background:
-                    activeTab === "all" ? "rgba(255,255,255,.2)" : "#f1f5f9",
-                  color: activeTab === "all" ? "white" : "#64748b",
-                  fontSize: 11,
-                  padding: "1px 6px",
-                  borderRadius: 6,
-                  fontWeight: 700,
-                }}
-              >
-                {signs.length}
-              </span>
-            </button>
-            {CATEGORIES.map((cat) => {
-              const meta = CAT_META[cat];
-              const active = activeTab === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveTab(cat)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 7,
-                    padding: "8px 16px",
-                    borderRadius: 12,
-                    border: `2px solid ${active ? meta.accent : "#e2e8f0"}`,
-                    background: active ? meta.bg : "white",
-                    color: active ? meta.text : "#64748b",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "all .2s",
-                  }}
-                >
-                  <span
-                    style={{
-                      maxWidth: 160,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {cat}
-                  </span>
-                  <span
-                    style={{
-                      background: active ? meta.border : "#f1f5f9",
-                      color: active ? meta.text : "#94a3b8",
-                      fontSize: 11,
-                      padding: "1px 6px",
-                      borderRadius: 6,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {counts[cat] ?? 0}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Content */}
         <div
@@ -880,7 +866,7 @@ export default function StreetSignsPage() {
                       margin: 0,
                       letterSpacing: "-0.02em",
                       lineHeight: 1.25,
-                      textAlign: "center"
+                      textAlign: "center",
                     }}
                   >
                     {selected.name}
