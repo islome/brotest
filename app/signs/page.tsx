@@ -61,7 +61,7 @@ const CAT_META: Record<
   "Axborot-ishora belgilari": {
     desc: "Yo'nalish va masofa haqida ma'lumot",
     accent: "#22c55e",
-    bg: "#f0fdf4",
+    bg: "#fff",
     border: "#bbf7d0",
     text: "#14532d",
     dot: "#22c55e",
@@ -69,7 +69,7 @@ const CAT_META: Record<
   "Servis belgilari": {
     desc: "Xizmat ko'rsatish ob'ektlari belgilari",
     accent: "#8b5cf6",
-    bg: "#faf5ff",
+    bg: "#fff",
     border: "#ddd6fe",
     text: "#5b21b6",
     dot: "#8b5cf6",
@@ -640,7 +640,7 @@ export default function StreetSignsPage() {
                             </p>
                           </div>
                         </div>
-                        <button
+                        {/* <button
                           onClick={() => setActiveTab(cat as Category)}
                           style={{
                             fontSize: 12,
@@ -655,7 +655,7 @@ export default function StreetSignsPage() {
                           }}
                         >
                           Hammasini ko'rish ({items.length})
-                        </button>
+                        </button> */}
                       </div>
                       <div
                         style={{
