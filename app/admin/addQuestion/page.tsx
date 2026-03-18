@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Image from "next/image";
 
 const BUCKET = "questions-images";
 
@@ -341,17 +342,8 @@ export default function AdminPage() {
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <svg
-                width="14"
-                height="14"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.2"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
+            <div className="w-7 h-7 flex items-center justify-center">
+              <Image src={"/logo.png"} alt="logo" width={28} height={28} />
             </div>
             <span className="font-bold text-slate-800 text-sm">Brotest</span>
             <span className="text-slate-300 text-sm">/</span>
@@ -694,7 +686,7 @@ export default function AdminPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || uploading}
-                  className={`w-full rounded-xl font-semibold shadow-sm ${
+                  className={`text-white w-full rounded-xl font-semibold shadow-sm ${
                     editId !== null
                       ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
                       : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"

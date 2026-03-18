@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Image from "next/image";
 
 const BUCKET = "road-signs";
 const CATEGORIES = [
@@ -56,7 +57,7 @@ interface Sign {
 
 const CAT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   "Ogohlantiruvchi belgilar": {
-    bg: "bg-amber-50",
+    bg: "bg-white",
     text: "text-amber-700",
     dot: "bg-amber-400",
   },
@@ -342,18 +343,18 @@ export default function AdminSignsPage() {
         open={deleteId !== null}
         onOpenChange={() => setDeleteId(null)}
       >
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent className="rounded-2xl bg-amber-50">
           <AlertDialogHeader>
-            <AlertDialogTitle>Belgini o'chirasizmi?</AlertDialogTitle>
+            <AlertDialogTitle className="font-bold">Belgini o'chirasizmi?</AlertDialogTitle>
             <AlertDialogDescription>
               Bu amal qaytarib bo'lmaydi.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Bekor</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl border-0 cursor-pointer">Bekor</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteId && handleDelete(deleteId)}
-              className="rounded-xl bg-red-500 hover:bg-red-600"
+              className="rounded-xl bg-red-500 hover:bg-red-600 text-white cursor-pointer"
             >
               O'chirish
             </AlertDialogAction>
@@ -366,19 +367,10 @@ export default function AdminSignsPage() {
         <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <a href="/" className="flex items-center gap-2 no-underline">
-              <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <svg
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
+              <div className="w-7 h-7 flex items-center justify-center">
+                <Image src={"/logo.png"} alt="logo" width={28} height={28} />
               </div>
-              <span className="font-bold text-slate-800 text-sm">Autotest</span>
+              <span className="font-bold text-slate-800 text-sm">Brotest</span>
             </a>
             <span className="text-slate-300">/</span>
             <span className="text-sm text-slate-500 font-medium">
@@ -390,7 +382,7 @@ export default function AdminSignsPage() {
               {signs.length} ta belgi
             </Badge>
             <a
-              href="/admin"
+              href="/admin/addQuestion"
               className="text-xs text-slate-500 hover:text-indigo-600 px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 transition"
             >
               ← Admin
@@ -662,7 +654,7 @@ export default function AdminSignsPage() {
               <Button
                 onClick={handleSave}
                 disabled={saving || uploading}
-                className={`w-full rounded-xl font-semibold shadow-sm ${editId ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200" : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"}`}
+                className={`text-white w-full rounded-xl font-semibold shadow-sm ${editId ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200" : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"}`}
               >
                 {saving ? (
                   <span className="flex items-center gap-2">
@@ -731,7 +723,11 @@ export default function AdminSignsPage() {
                   Barcha kategoriyalar
                 </SelectItem>
                 {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c} className="text-sm font-bold px-2">
+                  <SelectItem
+                    key={c}
+                    value={c}
+                    className="text-sm font-bold px-2"
+                  >
                     {c}
                   </SelectItem>
                 ))}
@@ -783,7 +779,7 @@ export default function AdminSignsPage() {
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         {/* Image */}
-                        <div className="w-14 h-14 bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center shrink-0">
+                        <div className="w-14 h-14 overflow-hidden flex items-center justify-center shrink-0">
                           {s.image ? (
                             <img
                               src={imgUrl(s.image)}

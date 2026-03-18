@@ -37,7 +37,7 @@ const CAT_META: Record<
   "Ogohlantiruvchi belgilar": {
     desc: "Xavf va ehtiyotkorlik talab qiladigan joylar",
     accent: "#f59e0b",
-    bg: "#fefce8",
+    bg: "#fff",
     border: "#fde68a",
     text: "#92400e",
     dot: "#f59e0b",
