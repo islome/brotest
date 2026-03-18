@@ -326,7 +326,6 @@ export default function StreetSignsPage() {
               oldidan takrorlang.
             </p>
 
-            {/* Search */}
             <div
               style={{
                 display: "flex",
@@ -338,7 +337,6 @@ export default function StreetSignsPage() {
                 ...anim(100),
               }}
             >
-              {/* Search */}
               <div style={{ position: "relative", flex: 1 }}>
                 <span
                   style={{
@@ -370,17 +368,17 @@ export default function StreetSignsPage() {
                   style={{
                     width: "100%",
                     boxSizing: "border-box",
+                    height: 42,
                     background: "white",
                     border: "2px solid #e2e8f0",
                     borderRadius: 12,
-                    padding: "10px 14px 10px 42px",
+                    padding: "0 14px 0 42px",
                     fontSize: 13,
                     fontWeight: 500,
                     color: "#0f172a",
                     outline: "none",
                     transition: "border-color .2s",
                     fontFamily: "inherit",
-                    height: 42,
                   }}
                   onFocus={(e) =>
                     (e.currentTarget.style.borderColor = "#6366f1")
@@ -424,8 +422,10 @@ export default function StreetSignsPage() {
                 )}
               </div>
 
-              {/* Category select */}
-              <div style={{ position: "relative", flexShrink: 0 }}>
+              <div
+                className="hidden sm:block"
+                style={{ position: "relative", flexShrink: 0 }}
+              >
                 <select
                   value={activeTab}
                   onChange={(e) =>
@@ -485,9 +485,53 @@ export default function StreetSignsPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                
               </div>
-              
+
+              <div
+                className="flex sm:hidden"
+                style={{ position: "relative", flexShrink: 0 }}
+              >
+                <select
+                  value={activeTab}
+                  onChange={(e) =>
+                    setActiveTab(
+                      e.target.value as Parameters<typeof setActiveTab>[0],
+                    )
+                  }
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    opacity: 0,
+                    cursor: "pointer",
+                    width: "100%",
+                    height: "100%",
+                    zIndex: 1,
+                  }}
+                >
+                  <option value="all">🗂 Barchasi ({signs.length})</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat} ({counts[cat] ?? 0})
+                    </option>
+                  ))}
+                </select>
+                <div
+                  style={{
+                    height: 42,
+                    width: 42,
+                    borderRadius: 12,
+                    border: `2px solid ${activeTab !== "all" ? "#6366f1" : "#e2e8f0"}`,
+                    background: activeTab !== "all" ? "#eef2ff" : "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 18,
+                    pointerEvents: "none",
+                  }}
+                >
+                  🗂
+                </div>
+              </div>
             </div>
           </div>
         </section>
