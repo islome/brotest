@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 
 const BUCKET = "road-signs";
@@ -85,8 +85,7 @@ const CAT_META: Record<
 };
 
 export default function StreetSignsPage() {
-  const supabase = createClient();
-
+  const supabase = useMemo(() => createClient(), []);
   const [signs, setSigns] = useState<Sign[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Category | "all">("all");
@@ -105,46 +104,61 @@ export default function StreetSignsPage() {
         setSigns(data ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [supabase]);
 
-  function imgUrl(img: string | null) {
-    if (!img) return null;
-    if (img.startsWith("http")) return img;
-    return supabase.storage.from(BUCKET).getPublicUrl(img).data.publicUrl;
-  }
+  const imgUrl = useCallback(
+    (img: string | null) => {
+      if (!img) return null;
+      if (img.startsWith("http")) return img;
+      return supabase.storage.from(BUCKET).getPublicUrl(img).data.publicUrl;
+    },
+    [supabase],
+  );
 
-  function anim(delay: number): React.CSSProperties {
-    return {
+  const anim = useCallback(
+    (delay: number): React.CSSProperties => ({
       opacity: vis ? 1 : 0,
       transform: vis ? "translateY(0)" : "translateY(20px)",
       transition: `opacity .55s ease ${delay}ms, transform .55s cubic-bezier(.22,1,.36,1) ${delay}ms`,
-    };
-  }
-
-  const filtered = signs.filter((s) => {
-    const matchTab = activeTab === "all" || s.category === activeTab;
-    const matchSearch =
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      (s.description ?? "").toLowerCase().includes(search.toLowerCase());
-    return matchTab && matchSearch;
-  });
-
-  // Group by category for "all" view
-  const grouped = CATEGORIES.reduce(
-    (acc, cat) => {
-      const items = filtered.filter((s) => s.category === cat);
-      if (items.length) acc[cat] = items;
-      return acc;
-    },
-    {} as Record<string, Sign[]>,
+    }),
+    [vis],
   );
 
-  const counts = CATEGORIES.reduce(
-    (acc, cat) => {
-      acc[cat] = signs.filter((s) => s.category === cat).length;
-      return acc;
-    },
-    {} as Record<string, number>,
+  const counts = useMemo(
+    () =>
+      CATEGORIES.reduce(
+        (acc, cat) => {
+          acc[cat] = signs.filter((s) => s.category === cat).length;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+    [signs],
+  );
+
+  const filtered = useMemo(
+    () =>
+      signs.filter((s) => {
+        const matchTab = activeTab === "all" || s.category === activeTab;
+        const matchSearch =
+          s.name.toLowerCase().includes(search.toLowerCase()) ||
+          (s.description ?? "").toLowerCase().includes(search.toLowerCase());
+        return matchTab && matchSearch;
+      }),
+    [signs, activeTab, search],
+  );
+
+  const grouped = useMemo(
+    () =>
+      CATEGORIES.reduce(
+        (acc, cat) => {
+          const items = filtered.filter((s) => s.category === cat);
+          if (items.length) acc[cat] = items;
+          return acc;
+        },
+        {} as Record<string, Sign[]>,
+      ),
+    [filtered],
   );
 
   return (
@@ -805,7 +819,6 @@ export default function StreetSignsPage() {
                   overflow: "hidden",
                 }}
               >
-                {/* Image area — katta, to'liq kenglikda */}
                 <div
                   style={{
                     background: meta.bg,
@@ -818,7 +831,6 @@ export default function StreetSignsPage() {
                     padding: "10%",
                   }}
                 >
-                  {/* X — yuqori o'ngda, to'liq yumaloq */}
                   <button
                     onClick={() => setSelected(null)}
                     style={{
@@ -864,6 +876,7 @@ export default function StreetSignsPage() {
                     <img
                       src={url}
                       alt={selected.name}
+                      loading="lazy"
                       style={{
                         width: "100%",
                         height: "100%",
@@ -1005,6 +1018,7 @@ function SignCard({
           <img
             src={url}
             alt={sign.name}
+            loading="lazy"
             style={{
               width: "100%",
               height: "100%",
