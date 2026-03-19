@@ -273,6 +273,45 @@ export default function WeeklyLeaderboard({
               Siz #{myRank}
             </span>
           )}
+          <a
+            href="/leaderboard"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#64748b",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              padding: "4px 12px",
+              borderRadius: 999,
+              textDecoration: "none",
+              transition: "all .15s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "#eef2ff";
+              (e.currentTarget as HTMLElement).style.color = "#4f46e5";
+              (e.currentTarget as HTMLElement).style.borderColor = "#c7d2fe";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "#f8fafc";
+              (e.currentTarget as HTMLElement).style.color = "#64748b";
+              (e.currentTarget as HTMLElement).style.borderColor = "#e2e8f0";
+            }}
+          >
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M18 20V10M12 20V4M6 20v-6" />
+            </svg>
+            Reyting
+          </a>
         </div>
 
         {loading ? (
