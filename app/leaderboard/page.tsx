@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import Link from "next/link";
 
@@ -35,7 +35,7 @@ function anim(delay = 0) {
 }
 
 export default function LeaderboardPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [entries, setEntries] = useState<LeaderEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<keyof LeaderEntry>("weekly_xp");
@@ -65,22 +65,26 @@ export default function LeaderboardPage() {
         setEntries((data ?? []) as LeaderEntry[]);
         setLoading(false);
       });
-  }, []);
+  }, [supabase]);
 
-  const sorted = [...entries]
-    .sort((a, b) => (b[tab] as number) - (a[tab] as number))
-    .filter(
+  const allSorted = useMemo(
+    () => [...entries].sort((a, b) => (b[tab] as number) - (a[tab] as number)),
+    [entries, tab],
+  );
+
+  const sorted = useMemo(() => {
+    if (!search) return allSorted;
+    const q = search.toLowerCase();
+    return allSorted.filter(
       (e) =>
-        search === "" ||
-        `${e.firstname} ${e.lastname}`
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        e.username?.toLowerCase().includes(search.toLowerCase()),
+        `${e.firstname} ${e.lastname}`.toLowerCase().includes(q) ||
+        e.username?.toLowerCase().includes(q),
     );
+  }, [allSorted, search]);
 
-  const myRank = sorted.findIndex((e) => e.id === currentUserId) + 1;
-  const me = sorted.find((e) => e.id === currentUserId);
-  const maxVal = (sorted[0]?.[tab] as number) ?? 1;
+  const myRank = allSorted.findIndex((e) => e.id === currentUserId) + 1;
+  const me = allSorted.find((e) => e.id === currentUserId);
+  const maxVal = (allSorted[0]?.[tab] as number) ?? 1;
 
   return (
     <>
@@ -477,7 +481,8 @@ export default function LeaderboardPage() {
             ) : (
               <div>
                 {sorted.map((entry, idx) => {
-                  const rank = idx + 1;
+                  const rank =
+                    allSorted.findIndex((e) => e.id === entry.id) + 1;
                   const isMe = entry.id === currentUserId;
                   const isTop3 = rank <= 3;
                   const val = entry[tab] as number;
