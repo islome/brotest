@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 
@@ -147,8 +147,7 @@ function Fireworks({ active }: { active: boolean }) {
 
 export default function TestPage() {
   const router = useRouter();
-  const supabase = createClient();
-
+  const supabase = useMemo(() => createClient(), []);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const skipRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const elapsedRef = useRef(0);
@@ -164,13 +163,28 @@ export default function TestPage() {
   const [saved, setSaved] = useState(false);
   const [skipCountdown, setSkipCountdown] = useState<number | null>(null);
   const [vis, setVis] = useState(false);
+  const finishTestRef = useRef<((dur?: number) => Promise<void>) | null>(null);
 
-  function imgUrl(img: string | null) {
-    if (!img) return null;
-    if (img.startsWith("http")) return img;
-    return supabase.storage.from(BUCKET).getPublicUrl(img).data.publicUrl;
-  }
+  const answersRef = useRef(answers);
+  const questionsRef = useRef(questions);
 
+  const imgUrl = useCallback(
+    (img: string | null) => {
+      if (!img) return null;
+      if (img.startsWith("http")) return img;
+      return supabase.storage.from(BUCKET).getPublicUrl(img).data.publicUrl;
+    },
+    [supabase],
+  );
+
+  const anim = useCallback(
+    (delay: number): React.CSSProperties => ({
+      opacity: vis ? 1 : 0,
+      transform: vis ? "translateY(0)" : "translateY(20px)",
+      transition: `opacity 0.55s ease ${delay}ms, transform 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+    }),
+    [vis],
+  );
   useEffect(() => {
     setTimeout(() => setVis(true), 60);
     supabase
@@ -184,17 +198,81 @@ export default function TestPage() {
       if (timerRef.current) clearInterval(timerRef.current);
       if (skipRef.current) clearInterval(skipRef.current);
     };
-  }, []);
+  }, [supabase]);
 
-  function anim(delay: number): React.CSSProperties {
-    return {
-      opacity: vis ? 1 : 0,
-      transform: vis ? "translateY(0)" : "translateY(20px)",
-      transition: `opacity 0.55s ease ${delay}ms, transform 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-    };
-  }
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+  useEffect(() => {
+    questionsRef.current = questions;
+  }, [questions]);
 
-  function startTimer(totalSec: number) {
+  const finishTest = useCallback(
+    async (dur?: number) => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (skipRef.current) clearInterval(skipRef.current);
+      if (saved) {
+        setPhase("result");
+        return;
+      }
+      setSaved(true);
+
+      const ans = answersRef.current; // ✅ har doim fresh
+      const qs = questionsRef.current; // ✅ har doim fresh
+      const correct = ans.filter((a, i) => a === qs[i]?.answer).length;
+      const wrong = ans.filter((a) => a !== null).length - correct;
+      const elapsed = dur ?? elapsedRef.current;
+      const pct = Math.round((correct / qs.length) * 100);
+
+      if (pct >= 80) {
+        setShowFireworks(true);
+        setTimeout(() => setShowFireworks(false), 4000);
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const { data: result } = await supabase
+          .from("test_results")
+          .insert({
+            user_id: user.id,
+            total: qs.length,
+            correct,
+            wrong,
+            score_percent: pct,
+            passed: pct >= 70,
+            duration_sec: elapsed,
+          })
+          .select()
+          .single();
+
+        if (result) {
+          const wrongRows = ans
+            .map((a, i) => ({
+              user_id: user.id,
+              test_result_id: result.id,
+              question_id: qs[i].id,
+              selected: a!,
+              correct: qs[i].answer,
+            }))
+            .filter((_, i) => ans[i] !== null && ans[i] !== qs[i].answer);
+
+          if (wrongRows.length > 0) {
+            await supabase.from("wrong_answers").insert(wrongRows);
+          }
+        }
+      }
+      setPhase("result");
+    },
+    [saved, supabase], // ✅ answers/questions ref orqali, dependency minimal
+  );
+
+  useEffect(() => {
+    finishTestRef.current = finishTest;
+  }, [finishTest]);
+
+  const startTimer = useCallback((totalSec: number) => {
     setTimeLeft(totalSec);
     elapsedRef.current = 0;
     if (timerRef.current) clearInterval(timerRef.current);
@@ -205,10 +283,10 @@ export default function TestPage() {
       setTimeLeft(secs);
       if (secs <= 0) {
         clearInterval(timerRef.current!);
-        finishTest(elapsedRef.current);
+        finishTestRef.current?.(elapsedRef.current); // ✅ ref orqali
       }
     }, 1000);
-  }
+  }, []);
 
   function startSkipTimer(nextFn: () => void) {
     if (skipRef.current) clearInterval(skipRef.current);
@@ -244,68 +322,12 @@ export default function TestPage() {
     startTimer(cfg.minutes * 60);
   }
 
-  const finishTest = useCallback(
-    async (dur?: number) => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (skipRef.current) clearInterval(skipRef.current);
-      if (saved) {
-        setPhase("result");
-        return;
-      }
-      setSaved(true);
-
-      const ans = answers;
-      const correct = ans.filter((a, i) => a === questions[i]?.answer).length;
-      const wrong = ans.filter((a) => a !== null).length - correct;
-      const elapsed = dur ?? elapsedRef.current;
-      const pct = Math.round((correct / questions.length) * 100);
-
-      // 80% dan yuqori bo'lsa fireworks
-      if (pct >= 80) {
-        setShowFireworks(true);
-        setTimeout(() => setShowFireworks(false), 4000);
-      }
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const { data: result } = await supabase
-          .from("test_results")
-          .insert({
-            user_id: user.id,
-            total: questions.length,
-            correct,
-            wrong,
-            score_percent: pct,
-            passed: pct >= 70,
-            duration_sec: elapsed,
-          })
-          .select()
-          .single();
-
-        if (result) {
-          const wrongRows = ans
-            .map((a, i) => ({
-              user_id: user.id,
-              test_result_id: result.id,
-              question_id: questions[i].id,
-              selected: a!,
-              correct: questions[i].answer,
-            }))
-            .filter(
-              (_, i) => ans[i] !== null && ans[i] !== questions[i].answer,
-            );
-
-          if (wrongRows.length > 0) {
-            await supabase.from("wrong_answers").insert(wrongRows);
-          }
-        }
-      }
-      setPhase("result");
-    },
-    [answers, questions, saved],
-  );
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+  useEffect(() => {
+    questionsRef.current = questions;
+  }, [questions]);
 
   async function exitTest() {
     cancelSkip();
@@ -1262,16 +1284,14 @@ export default function TestPage() {
             </div>
           )}
 
-          {/* ── DESKTOP: 2 ustun | MOBILE: 1 ustun ── */}
           <div className="test-layout">
-            {/* ── CHAP (desktop) / YUQORI (mobile): savol + variantlar ── */}
             <div className="test-left">
-              {/* Mobile: rasm savol USTIDA */}
               {q.image && (
                 <div className="test-img-mobile">
                   <img
                     src={imgUrl(q.image) ?? ""}
                     alt="savol rasmi"
+                    loading="lazy"
                     style={{
                       width: "100%",
                       display: "block",
@@ -1282,8 +1302,6 @@ export default function TestPage() {
                   />
                 </div>
               )}
-
-              {/* Savol kartochkasi */}
               <div
                 style={{
                   background: "white",
@@ -1550,6 +1568,7 @@ export default function TestPage() {
                   <img
                     src={imgUrl(q.image) ?? ""}
                     alt="savol rasmi"
+                    loading="lazy"
                     style={{
                       width: "100%",
                       display: "block",
