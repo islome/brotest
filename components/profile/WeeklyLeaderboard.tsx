@@ -171,7 +171,7 @@ export default function WeeklyLeaderboard({
     supabase
       .from("weekly_leaderboard")
       .select("*")
-      .then(({ data }) => {
+      .then(({ data }: { data: LeaderEntry[] | null }) => {
         setEntries((data ?? []) as LeaderEntry[]);
         setLoading(false);
         if ((data ?? []).length > 0) {
@@ -429,13 +429,13 @@ export default function WeeklyLeaderboard({
                               width: isFirst ? 52 : 44,
                               height: isFirst ? 52 : 44,
                               borderRadius: "50%",
-                              background: `linear-gradient(135deg,${isMe ? "#6366f1,#7c3aed" : "#94a3b8,#64748b"})`,
+                              background: `linear-gradient(135deg,${isMe ? "#2d4356,#89aac3" : "#52392f,#8c614f"})`,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
                               border: isMe
-                                ? "2.5px solid #6366f1"
-                                : "2px solid #e2e8f0",
+                                ? "2.5px solid #52392f"
+                                : "2px solid #2d4356",
                               boxShadow: isMe
                                 ? "0 0 0 3px rgba(99,102,241,.2)"
                                 : "none",
@@ -445,7 +445,7 @@ export default function WeeklyLeaderboard({
                               fontFamily: "'Syne',sans-serif",
                             }}
                           >
-                            {initials(entry)}
+                            {/* {initials(entry)}/ */}
                             {entry.avatar_icon}
                           </div>
                           <span
