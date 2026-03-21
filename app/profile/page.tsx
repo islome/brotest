@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import WeeklyLeaderboard from "@/components/profile/WeeklyLeaderboard";
@@ -16,6 +16,87 @@ interface UserData {
   created_at: string;
 }
 
+interface StreakData {
+  current_streak: number;
+  longest_streak: number;
+  last_passed_at: string | null;
+}
+
+interface Achievement {
+  type: string;
+  earned_at: string;
+}
+
+const ACHIEVEMENT_META: Record<
+  string,
+  {
+    icon: string;
+    label: string;
+    desc: string;
+    color: string;
+    bg: string;
+    border: string;
+  }
+> = {
+  passed_5: {
+    icon: "⭐",
+    label: "Besh marta o'tdi",
+    desc: "5 ta testdan o'tdi",
+    color: "#ca8a04",
+    bg: "#fefce8",
+    border: "#fde68a",
+  },
+  perfect_score: {
+    icon: "💯",
+    label: "Mukammal natija",
+    desc: "100% natija oldi",
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    border: "#bbf7d0",
+  },
+  streak_3: {
+    icon: "🔥",
+    label: "3 kunlik streak",
+    desc: "3 kun ketma-ket o'tdi",
+    color: "#ea580c",
+    bg: "#fff7ed",
+    border: "#fed7aa",
+  },
+  streak_7: {
+    icon: "🚀",
+    label: "Haftalik streak",
+    desc: "7 kun ketma-ket o'tdi",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#ddd6fe",
+  },
+  streak_30: {
+    icon: "👑",
+    label: "Oylik streak",
+    desc: "30 kun ketma-ket o'tdi",
+    color: "#b45309",
+    bg: "#fffbeb",
+    border: "#fcd34d",
+  },
+  leaderboard_1st: {
+    icon: "🥇",
+    label: "Birinchi o'rin",
+    desc: "Haftalik 1-o'rinda",
+    color: "#b45309",
+    bg: "#fffbeb",
+    border: "#fcd34d",
+  },
+  leaderboard_top3: {
+    icon: "🏆",
+    label: "Top 3",
+    desc: "Haftalik top 3 da",
+    color: "#4f46e5",
+    bg: "#eef2ff",
+    border: "#c7d2fe",
+  },
+};
+
+const PRO_ACHIEVEMENTS = Object.keys(ACHIEVEMENT_META);
 interface TestResult {
   id: number;
   total: number;
@@ -53,7 +134,7 @@ const RANKS = [
     color: "text-blue-600",
     bg: "bg-blue-50",
     border: "border-blue-200",
-    minXP: 50,
+    minXP: 150,
   },
   {
     name: "O'rtacha",
@@ -61,7 +142,7 @@ const RANKS = [
     color: "text-yellow-600",
     bg: "bg-yellow-50",
     border: "border-yellow-200",
-    minXP: 150,
+    minXP: 300,
   },
   {
     name: "Tajribali",
@@ -69,15 +150,15 @@ const RANKS = [
     color: "text-orange-600",
     bg: "bg-orange-50",
     border: "border-orange-200",
-    minXP: 350,
+    minXP: 550,
   },
   {
-    name: "Usta",
+    name: "Expert",
     icon: "👑",
     color: "text-purple-600",
     bg: "bg-purple-50",
     border: "border-purple-200",
-    minXP: 700,
+    minXP: 1000,
   },
 ];
 
@@ -128,12 +209,7 @@ function fmtDate(iso: string) {
     year: "numeric",
   });
 }
-function fmtDuration(sec: number | null) {
-  if (!sec) return "—";
-  const m = Math.floor(sec / 60),
-    s = sec % 60;
-  return m > 0 ? `${m}m ${s}s` : `${s}s`;
-}
+
 function fmtJoined(iso: string) {
   return new Date(iso).toLocaleDateString("uz-UZ", {
     month: "long",
@@ -264,12 +340,14 @@ function EmptyStats() {
 // ---------- Main ----------
 export default function ProfilePage() {
   const router = useRouter();
-  const supabase = createClient();
-
+  const supabase = useMemo(() => createClient(), []);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [user, setUser] = useState<UserData | null>(null);
   const [results, setResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [streak, setStreak] = useState<StreakData | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   const [modal, setModal] = useState<{
     result: TestResult;
@@ -318,11 +396,11 @@ export default function ProfilePage() {
       )
       .eq("test_result_id", result.id);
 
-    const normalized = (data ?? []).map((w) => ({
+    const normalized: WrongAnswer[] = (data ?? []).map((w: any) => ({
       ...w,
       questions: Array.isArray(w.questions) ? w.questions[0] : w.questions,
     }));
-    setModal({ result, wrongs: normalized as unknown as WrongAnswer[] });
+    setModal({ result, wrongs: normalized });
     setModalLoading(false);
   }
   useEffect(() => {
@@ -372,10 +450,23 @@ export default function ProfilePage() {
         .limit(10);
 
       setResults(resultsData ?? []);
+
+      const { data: streakData } = await supabase
+        .from("streaks")
+        .select("current_streak, longest_streak, last_passed_at")
+        .eq("user_id", authUser.id)
+        .single();
+      setStreak(streakData ?? null);
+
+      const { data: achData } = await supabase
+        .from("achievements")
+        .select("type, earned_at")
+        .eq("user_id", authUser.id);
+      setAchievements(achData ?? []);
       setLoading(false);
     }
     load();
-  }, []);
+  }, [supabase, router]);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -442,7 +533,7 @@ export default function ProfilePage() {
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <svg
                 width="14"
                 height="14"
@@ -562,7 +653,480 @@ export default function ProfilePage() {
                 }
               />
             </div>
+            {/* ── STREAK CARD ── */}
+            {(() => {
+              const today = new Date().toISOString().split("T")[0];
+              const lastPassed = streak?.last_passed_at?.split("T")[0] ?? null;
+              const isActiveToday = lastPassed === today;
+              const isActiveYesterday =
+                lastPassed ===
+                new Date(Date.now() - 86400000).toISOString().split("T")[0];
+              const isAlive = isActiveToday || isActiveYesterday;
 
+              return (
+                <div
+                  style={{
+                    background: "white",
+                    borderRadius: 20,
+                    border: "1px solid #e2e8f0",
+                    boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Header */}
+                  <div
+                    style={{
+                      padding: "18px 20px 14px",
+                      borderBottom: "1px solid #f1f5f9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          background: isAlive ? "#fff7ed" : "#f8fafc",
+                          borderRadius: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 16,
+                        }}
+                      >
+                        🔥
+                      </div>
+                      <div>
+                        <h2
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color: "#0f172a",
+                            margin: 0,
+                          }}
+                        >
+                          Streak
+                        </h2>
+                        <p
+                          style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}
+                        >
+                          Har kun 70%+ test topshiring
+                        </p>
+                      </div>
+                    </div>
+                    {isActiveToday && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "#ea580c",
+                          background: "#fff7ed",
+                          border: "1px solid #fed7aa",
+                          padding: "3px 10px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        Bugun ✓
+                      </span>
+                    )}
+                    {isActiveYesterday && !isActiveToday && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "#dc2626",
+                          background: "#fff1f2",
+                          border: "1px solid #fecdd3",
+                          padding: "3px 10px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        Bugun test topshiring!
+                      </span>
+                    )}
+                    {!isAlive && streak && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "#94a3b8",
+                          background: "#f8fafc",
+                          border: "1px solid #e2e8f0",
+                          padding: "3px 10px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        Streak uzildi
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Body */}
+                  <div
+                    style={{
+                      padding: "20px",
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 12,
+                    }}
+                  >
+                    {/* Current streak */}
+                    <div
+                      style={{
+                        background: isAlive ? "#fff7ed" : "#f8fafc",
+                        border: `1px solid ${isAlive ? "#fed7aa" : "#e2e8f0"}`,
+                        borderRadius: 16,
+                        padding: "18px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 48,
+                          fontWeight: 800,
+                          color: isAlive ? "#ea580c" : "#cbd5e1",
+                          margin: 0,
+                          lineHeight: 1,
+                          fontFamily: "'Syne', sans-serif",
+                        }}
+                      >
+                        {streak?.current_streak ?? 0}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: isAlive ? "#ea580c" : "#94a3b8",
+                          marginTop: 6,
+                        }}
+                      >
+                        Joriy streak 🔥
+                      </p>
+                      <p
+                        style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}
+                      >
+                        kun ketma-ket
+                      </p>
+                    </div>
+
+                    {/* Longest streak */}
+                    <div
+                      style={{
+                        background: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 16,
+                        padding: "18px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 48,
+                          fontWeight: 800,
+                          color: "#4f46e5",
+                          margin: 0,
+                          lineHeight: 1,
+                          fontFamily: "'Syne', sans-serif",
+                        }}
+                      >
+                        {streak?.longest_streak ?? 0}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: "#4f46e5",
+                          marginTop: 6,
+                        }}
+                      >
+                        Rekord 🏅
+                      </p>
+                      <p
+                        style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}
+                      >
+                        eng uzun streak
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Weekly progress dots */}
+                  <div
+                    style={{
+                      padding: "0 20px 20px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    {Array.from({ length: 7 }).map((_, i) => {
+                      const dayDate = new Date(Date.now() - (6 - i) * 86400000)
+                        .toISOString()
+                        .split("T")[0];
+                      const isToday = i === 6;
+                      const isPast = lastPassed && dayDate <= lastPassed;
+                      const isActive =
+                        streak &&
+                        streak.current_streak > 0 &&
+                        isPast &&
+                        streak.current_streak >= 7 - i;
+
+                      const days = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"];
+                      const dayOfWeek = new Date(dayDate).getDay();
+                      const dayLabel =
+                        days[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
+
+                      return (
+                        <div
+                          key={i}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 4,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "100%",
+                              height: 8,
+                              borderRadius: 999,
+                              background: isActive
+                                ? "#f97316"
+                                : isToday && isActiveToday
+                                  ? "#f97316"
+                                  : "#e2e8f0",
+                              transition: "background .3s",
+                            }}
+                          />
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: isToday ? "#0f172a" : "#94a3b8",
+                              fontWeight: isToday ? 700 : 400,
+                            }}
+                          >
+                            {dayLabel}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ── ACHIEVEMENTS CARD ── */}
+            {(() => {
+              const earned = achievements.map((a) => a.type);
+              const isPro = PRO_ACHIEVEMENTS.every((t) => earned.includes(t));
+
+              return (
+                <div
+                  style={{
+                    background: "white",
+                    borderRadius: 20,
+                    border: isPro ? "2px solid #f59e0b" : "1px solid #e2e8f0",
+                    boxShadow: isPro
+                      ? "0 4px 24px rgba(245,158,11,.15)"
+                      : "0 2px 8px rgba(0,0,0,.04)",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Header */}
+                  <div
+                    style={{
+                      padding: "18px 20px 14px",
+                      borderBottom: "1px solid #f1f5f9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          background: isPro ? "#fffbeb" : "#f8fafc",
+                          borderRadius: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 16,
+                        }}
+                      >
+                        {isPro ? "✨" : "🎖️"}
+                      </div>
+                      <div>
+                        <h2
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 700,
+                            color: "#0f172a",
+                            margin: 0,
+                          }}
+                        >
+                          Yutuqlar
+                        </h2>
+                        <p
+                          style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}
+                        >
+                          {earned.length} / {PRO_ACHIEVEMENTS.length} olindi
+                        </p>
+                      </div>
+                    </div>
+                    {isPro && (
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 800,
+                          color: "#b45309",
+                          background: "linear-gradient(135deg,#fef3c7,#fde68a)",
+                          border: "1px solid #fcd34d",
+                          padding: "4px 12px",
+                          borderRadius: 999,
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        ✨ PRO
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div style={{ padding: "14px 20px 0" }}>
+                    <div
+                      style={{
+                        height: 6,
+                        background: "#f1f5f9",
+                        borderRadius: 999,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          borderRadius: 999,
+                          background: isPro
+                            ? "linear-gradient(90deg,#f59e0b,#fbbf24)"
+                            : "linear-gradient(90deg,#6366f1,#8b5cf6)",
+                          width: `${(earned.length / PRO_ACHIEVEMENTS.length) * 100}%`,
+                          transition: "width 1s cubic-bezier(.22,1,.36,1)",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Badges grid */}
+                  <div
+                    style={{
+                      padding: "16px 20px 20px",
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fill, minmax(140px, 1fr))",
+                      gap: 10,
+                    }}
+                  >
+                    {PRO_ACHIEVEMENTS.map((type) => {
+                      const meta = ACHIEVEMENT_META[type];
+                      const isEarned = earned.includes(type);
+                      const ach = achievements.find((a) => a.type === type);
+
+                      return (
+                        <div
+                          key={type}
+                          style={{
+                            background: isEarned ? meta.bg : "#f8fafc",
+                            border: `1px solid ${isEarned ? meta.border : "#e2e8f0"}`,
+                            borderRadius: 14,
+                            padding: "14px 12px",
+                            textAlign: "center",
+                            opacity: isEarned ? 1 : 0.45,
+                            transition: "all .2s",
+                            filter: isEarned ? "none" : "grayscale(1)",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 28,
+                              display: "block",
+                              marginBottom: 6,
+                            }}
+                          >
+                            {meta.icon}
+                          </span>
+                          <p
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: isEarned ? meta.color : "#94a3b8",
+                              margin: "0 0 2px",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {meta.label}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: 10,
+                              color: isEarned ? meta.color : "#cbd5e1",
+                              margin: 0,
+                              opacity: 0.8,
+                            }}
+                          >
+                            {isEarned && ach
+                              ? new Date(ach.earned_at).toLocaleDateString(
+                                  "uz-UZ",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                  },
+                                )
+                              : meta.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pro locked message */}
+                  {!isPro && (
+                    <div
+                      style={{
+                        margin: "0 20px 20px",
+                        padding: "12px 16px",
+                        background: "#fffbeb",
+                        border: "1px solid #fde68a",
+                        borderRadius: 12,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <span style={{ fontSize: 18, flexShrink: 0 }}>✨</span>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: "#92400e",
+                          margin: 0,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        Barcha yutuqlarni to'plab <strong>PRO</strong> avatarini
+                        oching — profilingiz boshqalardan ajralib turadi!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Aniqlik */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
@@ -923,6 +1487,68 @@ export default function ProfilePage() {
                     padding: 16,
                   }}
                 >
+                  <style>{`
+      @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(8px) } to { opacity:1; transform:scale(1) translateY(0) } }
+      @keyframes spin { to { transform: rotate(360deg) } }
+      @keyframes imgFadeIn { from { opacity:0; transform:scale(.97) } to { opacity:1; transform:scale(1) } }
+      .wrong-scroll::-webkit-scrollbar { width: 4px; }
+      .wrong-scroll::-webkit-scrollbar-track { background: transparent; }
+      .wrong-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 999px; }
+      .wrong-scroll::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+      .img-btn:hover { background: #e0e7ff !important; color: #3730a3 !important; }
+    `}</style>
+
+                  {/* Image lightbox */}
+                  {imagePreview && (
+                    <div
+                      onClick={() => setImagePreview(null)}
+                      style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,.85)",
+                        zIndex: 100,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 24,
+                        cursor: "zoom-out",
+                      }}
+                    >
+                      <img
+                        src={imagePreview}
+                        alt="preview"
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "90vh",
+                          borderRadius: 16,
+                          animation: "imgFadeIn .2s ease",
+                          objectFit: "contain",
+                        }}
+                      />
+                      <button
+                        onClick={() => setImagePreview(null)}
+                        style={{
+                          position: "absolute",
+                          top: 20,
+                          right: 20,
+                          width: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          border: "none",
+                          background: "rgba(255,255,255,.15)",
+                          color: "white",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
                   <div
                     style={{
                       background: "white",
@@ -949,7 +1575,6 @@ export default function ProfilePage() {
                     >
                       <div>
                         <h3
-                          className="fs"
                           style={{
                             fontSize: 18,
                             color: "#0f172a",
@@ -1009,7 +1634,6 @@ export default function ProfilePage() {
                     >
                       <div>
                         <p
-                          className="fs"
                           style={{
                             fontSize: 38,
                             color: modal.result.passed ? "#16a34a" : "#dc2626",
@@ -1068,7 +1692,6 @@ export default function ProfilePage() {
                             }}
                           >
                             <p
-                              className="fs"
                               style={{
                                 fontSize: 18,
                                 color: s.col,
@@ -1093,8 +1716,9 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Wrongs list */}
+                    {/* Wrongs list — scroll shu div da */}
                     <div
+                      className="wrong-scroll"
                       style={{
                         flex: 1,
                         overflowY: "auto",
@@ -1187,21 +1811,6 @@ export default function ProfilePage() {
                                 overflow: "hidden",
                               }}
                             >
-                              {/* Rasm — agar mavjud bo'lsa */}
-                              {w.questions.image && (
-                                <img
-                                  src={imgUrl(w.questions.image) ?? ""}
-                                  alt="savol rasmi"
-                                  style={{
-                                    width: "100%",
-                                    maxHeight: 160,
-                                    objectFit: "cover",
-                                    display: "block",
-                                    borderBottom: "1px solid #f1f5f9",
-                                  }}
-                                />
-                              )}
-
                               <div style={{ padding: "14px" }}>
                                 {/* Savol raqami + matni */}
                                 <div
@@ -1241,6 +1850,53 @@ export default function ProfilePage() {
                                     {w.questions.question}
                                   </p>
                                 </div>
+
+                                {/* Rasm ko'rish button — agar mavjud bo'lsa */}
+                                {w.questions.image && (
+                                  <button
+                                    className="img-btn"
+                                    onClick={() =>
+                                      setImagePreview(
+                                        imgUrl(w.questions.image) ?? "",
+                                      )
+                                    }
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 6,
+                                      marginBottom: 10,
+                                      padding: "6px 12px",
+                                      background: "#eef2ff",
+                                      border: "1px solid #c7d2fe",
+                                      borderRadius: 8,
+                                      cursor: "pointer",
+                                      color: "#4f46e5",
+                                      fontSize: 12,
+                                      fontWeight: 600,
+                                      transition: "all .15s",
+                                    }}
+                                  >
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <rect
+                                        x="3"
+                                        y="3"
+                                        width="18"
+                                        height="18"
+                                        rx="2"
+                                      />
+                                      <circle cx="8.5" cy="8.5" r="1.5" />
+                                      <polyline points="21 15 16 10 5 21" />
+                                    </svg>
+                                    Rasmni ko'rish
+                                  </button>
+                                )}
 
                                 {/* Variantlar */}
                                 <div
@@ -1396,11 +2052,6 @@ export default function ProfilePage() {
                       )}
                     </div>
                   </div>
-
-                  <style>{`
-      @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(8px) } to { opacity:1; transform:scale(1) translateY(0) } }
-      @keyframes spin { to { transform: rotate(360deg) } }
-    `}</style>
                 </div>
               )}
             </div>
