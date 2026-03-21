@@ -134,7 +134,7 @@ const RANKS = [
     color: "text-blue-600",
     bg: "bg-blue-50",
     border: "border-blue-200",
-    minXP: 150,
+    minXP: 1500,
   },
   {
     name: "O'rtacha",
@@ -142,7 +142,7 @@ const RANKS = [
     color: "text-yellow-600",
     bg: "bg-yellow-50",
     border: "border-yellow-200",
-    minXP: 300,
+    minXP: 3000,
   },
   {
     name: "Tajribali",
@@ -150,7 +150,7 @@ const RANKS = [
     color: "text-orange-600",
     bg: "bg-orange-50",
     border: "border-orange-200",
-    minXP: 550,
+    minXP: 5500,
   },
   {
     name: "Expert",
@@ -158,7 +158,7 @@ const RANKS = [
     color: "text-purple-600",
     bg: "bg-purple-50",
     border: "border-purple-200",
-    minXP: 1000,
+    minXP: 10000,
   },
 ];
 

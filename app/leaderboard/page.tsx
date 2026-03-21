@@ -52,7 +52,7 @@ export default function LeaderboardPage() {
     sun.setDate(mon.getDate() + 6);
     const fmt = (d: Date) =>
       d.toLocaleDateString("uz-UZ", { day: "2-digit", month: "short" });
-    setWeekRange(`${fmt(mon)} – ${fmt(sun)}`);
+    setWeekRange(`${fmt(mon)} ~ ${fmt(sun)}`);
 
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserId(data.user?.id);
@@ -152,7 +152,7 @@ export default function LeaderboardPage() {
           >
             {/* Back */}
             <Link
-              href="/"
+              href="/profile"
               style={{
                 display: "inline-flex",
                 alignItems: "center",

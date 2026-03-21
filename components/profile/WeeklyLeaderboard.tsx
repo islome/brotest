@@ -439,13 +439,13 @@ export default function WeeklyLeaderboard({
                     // XP dan daraja hisoblash
                     const xp = entry.weekly_xp;
                     const rank =
-                      xp >= 1000
+                      xp >= 10000
                         ? { icon: "👑", name: "Expert" }
-                        : xp >= 550
+                        : xp >= 5500
                           ? { icon: "🔥", name: "Tajribali" }
-                          : xp >= 300
+                          : xp >= 3000
                             ? { icon: "⭐", name: "O'rtacha" }
-                            : xp >= 150
+                            : xp >= 1500
                               ? { icon: "🚗", name: "Boshliq" }
                               : { icon: "🌱", name: "Yangi" };
 
