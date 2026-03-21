@@ -435,34 +435,87 @@ export default function LeaderboardPage() {
             {loading ? (
               <div
                 style={{
-                  padding: 48,
+                  padding: "20px 16px 16px",
                   display: "flex",
-                  justifyContent: "center",
+                  flexDirection: "column",
+                  gap: 16,
                 }}
               >
-                <svg
-                  style={{
-                    animation: "spin .7s linear infinite",
-                    width: 28,
-                    height: 28,
-                  }}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    style={{ opacity: 0.25 }}
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="#4f46e5"
-                    strokeWidth="4"
-                  />
-                  <path
-                    style={{ opacity: 0.75 }}
-                    fill="#4f46e5"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  />
-                </svg>
+                <style>{`
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .sk {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+  `}</style>
+
+                <div
+                  className="sk"
+                  style={{ height: 9, width: 100, marginTop: 4 }}
+                />
+
+                {/* 4–6 qatorlar */}
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "10px 0",
+                      opacity: 1 - i * 0.2,
+                    }}
+                  >
+                    {/* Rank raqam */}
+                    <div
+                      className="sk"
+                      style={{ width: 18, height: 14, flexShrink: 0 }}
+                    />
+
+                    {/* Avatar */}
+                    <div
+                      className="sk"
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: "50%",
+                        flexShrink: 0,
+                      }}
+                    />
+
+                    {/* Ism + XP bar */}
+                    <div
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 7,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div
+                          className="sk"
+                          style={{ height: 11, width: "45%" }}
+                        />
+                        <div className="sk" style={{ height: 11, width: 40 }} />
+                      </div>
+                      <div
+                        className="sk"
+                        style={{ height: 4, width: "100%", borderRadius: 999 }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : sorted.length === 0 ? (
               <div style={{ padding: "48px 24px", textAlign: "center" }}>

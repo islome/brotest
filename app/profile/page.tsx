@@ -477,28 +477,31 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <svg
-            className="animate-spin w-7 h-7 text-blue-500"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
-          <p className="text-sm text-slate-400">Yuklanmoqda...</p>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full bg-indigo-500"
+                style={{
+                  animation: "pulseDot 1.2s ease-in-out infinite",
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ))}
+          </div>
+
+          <p className="text-xs font-medium text-slate-400 tracking-wide">
+            Yuklanmoqda...
+          </p>
         </div>
+
+        <style>{`
+        @keyframes pulseDot {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+          40%            { transform: scale(1);   opacity: 1;   }
+        }
+      `}</style>
       </div>
     );
   }
@@ -1716,7 +1719,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Wrongs list — scroll shu div da */}
                     <div
                       className="wrong-scroll"
                       style={{
@@ -1731,35 +1733,114 @@ export default function ProfilePage() {
                       {modalLoading ? (
                         <div
                           style={{
+                            padding: "4px 0",
                             display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            padding: "40px 0",
+                            flexDirection: "column",
+                            gap: 12,
                           }}
                         >
-                          <svg
+                          <div
                             style={{
-                              animation: "spin .7s linear infinite",
-                              width: 24,
-                              height: 24,
+                              height: 10,
+                              width: 120,
+                              borderRadius: 6,
+                              background:
+                                "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                              backgroundSize: "200% 100%",
+                              animation: "shimmer 1.5s infinite",
                             }}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              style={{ opacity: 0.25 }}
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="#4f46e5"
-                              strokeWidth="4"
-                            />
-                            <path
-                              style={{ opacity: 0.75 }}
-                              fill="#4f46e5"
-                              d="M4 12a8 8 0 018-8v8H4z"
-                            />
-                          </svg>
+                          />
+
+                          {[0, 1].map((i) => (
+                            <div
+                              key={i}
+                              style={{
+                                background: "#f8f9fc",
+                                border: "1px solid #f1f5f9",
+                                borderRadius: 16,
+                                padding: 14,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 10,
+                                opacity: 1 - i * 0.2,
+                              }}
+                            >
+                              <div style={{ display: "flex", gap: 8 }}>
+                                <div
+                                  style={{
+                                    width: 20,
+                                    height: 20,
+                                    borderRadius: 6,
+                                    flexShrink: 0,
+                                    background:
+                                      "linear-gradient(90deg,#fee2e2 25%,#fecaca 50%,#fee2e2 75%)",
+                                    backgroundSize: "200% 100%",
+                                    animation: "shimmer 1.5s infinite",
+                                  }}
+                                />
+                                <div
+                                  style={{
+                                    flex: 1,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 6,
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      height: 11,
+                                      width: "90%",
+                                      borderRadius: 5,
+                                      background:
+                                        "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                                      backgroundSize: "200% 100%",
+                                      animation: "shimmer 1.5s infinite",
+                                    }}
+                                  />
+                                  <div
+                                    style={{
+                                      height: 11,
+                                      width: "65%",
+                                      borderRadius: 5,
+                                      background:
+                                        "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                                      backgroundSize: "200% 100%",
+                                      animation: "shimmer 1.5s infinite",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+
+                              <div
+                                style={{
+                                  height: 36,
+                                  borderRadius: 10,
+                                  background:
+                                    "linear-gradient(90deg,#f0fdf4 25%,#dcfce7 50%,#f0fdf4 75%)",
+                                  backgroundSize: "200% 100%",
+                                  animation: "shimmer 1.5s infinite",
+                                }}
+                              />
+
+                              <div
+                                style={{
+                                  height: 36,
+                                  borderRadius: 10,
+                                  background:
+                                    "linear-gradient(90deg,#fff1f2 25%,#fee2e2 50%,#fff1f2 75%)",
+                                  backgroundSize: "200% 100%",
+                                  animation: "shimmer 1.5s infinite",
+                                }}
+                              />
+                            </div>
+                          ))}
+
+                          <style>{`
+      @keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    `}</style>
                         </div>
                       ) : modal.wrongs.length === 0 ? (
                         <div style={{ textAlign: "center", padding: "36px 0" }}>

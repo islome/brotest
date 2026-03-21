@@ -562,29 +562,55 @@ export default function StreetSignsPage() {
                 padding: "80px 0",
               }}
             >
-              <svg
+              <div
                 style={{
-                  animation: "spin .7s linear infinite",
-                  width: 28,
-                  height: 28,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 16,
                 }}
-                fill="none"
-                viewBox="0 0 24 24"
               >
-                <circle
-                  style={{ opacity: 0.25 }}
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="#4f46e5"
-                  strokeWidth="4"
-                />
-                <path
-                  style={{ opacity: 0.75 }}
-                  fill="#4f46e5"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                />
-              </svg>
+                {/* Animated bars */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    gap: 5,
+                    height: 36,
+                  }}
+                >
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: 4,
+                        borderRadius: 999,
+                        background: "#4f46e5",
+                        animation: "roadBar 1.1s ease-in-out infinite",
+                        animationDelay: `${i * 0.15}s`,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <p
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#94a3b8",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  Belgilar Yuklanmoqda...
+                </p>
+              </div>
+
+              <style>{`
+    @keyframes roadBar {
+      0%, 100% { height: 8px;  opacity: 0.3; }
+      50%       { height: 36px; opacity: 1;   }
+    }
+  `}</style>
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: "80px 0" }}>
@@ -1000,7 +1026,6 @@ function SignCard({
         if (name) name.style.color = "#374151";
       }}
     >
-      {/* Rasm — kartochkaning 75% balandligini egallaydi */}
       <div
         style={{
           width: "100%",
