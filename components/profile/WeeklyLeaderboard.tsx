@@ -72,9 +72,6 @@ function Fireworks({ active }: { active: boolean }) {
     setTimeout(() => burst(w * 0.75, h * 0.2), 300);
     setTimeout(() => burst(w * 0.5, h * 0.35), 600);
 
-    // canvas va ctx ni local variable ga bind qilamiz
-    // TypeScript closure da null deb hisoblaydi, shuning uchun
-    // non-null guaranteed local var ishlatamiz
     const safeCtx = ctx;
     const safeCanvas = canvas;
 
@@ -157,7 +154,6 @@ export default function WeeklyLeaderboard({
   const [weekRange, setWeekRange] = useState("");
 
   useEffect(() => {
-    // Hafta oralig'ini hisoblash
     const now = new Date();
     const day = now.getDay() || 7; // 1=Mon … 7=Sun
     const mon = new Date(now);
@@ -166,17 +162,18 @@ export default function WeeklyLeaderboard({
     sun.setDate(mon.getDate() + 6);
     const fmt = (d: Date) =>
       d.toLocaleDateString("uz-UZ", { day: "2-digit", month: "short" });
-    setWeekRange(`${fmt(mon)} – ${fmt(sun)}`);
+    setWeekRange(`${fmt(mon)} - ${fmt(sun)}`);
 
     supabase
       .from("weekly_leaderboard")
       .select("*")
+      .order("weekly_xp", { ascending: false }) // ← shu qator qo'shildi
       .then(({ data }: { data: LeaderEntry[] | null }) => {
         setEntries((data ?? []) as LeaderEntry[]);
         setLoading(false);
         if ((data ?? []).length > 0) {
           setTimeout(() => setFireworks(true), 400);
-          setTimeout(() => setFireworks(false), 4000);
+          setTimeout(() => setFireworks(false), 8000);
         }
       });
   }, []);
@@ -261,6 +258,7 @@ export default function WeeklyLeaderboard({
           {myRank > 0 && (
             <span
               style={{
+                display: "flex",
                 fontSize: 12,
                 fontWeight: 700,
                 color: "#4f46e5",
@@ -385,7 +383,7 @@ export default function WeeklyLeaderboard({
         ) : (
           <>
             {/* Fireworks canvas */}
-            <div style={{ position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "relative" }}>
               <Fireworks active={fireworks} />
 
               {/* Top 3 podium */}
@@ -402,123 +400,245 @@ export default function WeeklyLeaderboard({
                     zIndex: 5,
                   }}
                 >
-                  {/* Reorder: 2nd | 1st | 3rd */}
+                  <style>{`
+      .podium-wrap { position: relative; }
+      .podium-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%) scale(0.92);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease;
+        z-index: 50;
+        width: 160px;
+      }
+      .podium-wrap:hover .podium-tooltip {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+      }
+      .podium-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: white;
+      }
+    `}</style>
+
                   {[entries[1], entries[0], entries[2]].map((entry, podIdx) => {
                     if (!entry) return <div key={podIdx} />;
                     const realIdx = podIdx === 0 ? 1 : podIdx === 1 ? 0 : 2;
                     const medal = MEDALS[realIdx];
                     const isFirst = realIdx === 0;
                     const isMe = entry.id === currentUserId;
-                    const heights = ["88px", "108px", "72px"]; // 2nd, 1st, 3rd
+                    const heights = ["88px", "108px", "72px"];
+
+                    // XP dan daraja hisoblash
+                    const xp = entry.weekly_xp;
+                    const rank =
+                      xp >= 1000
+                        ? { icon: "👑", name: "Expert" }
+                        : xp >= 550
+                          ? { icon: "🔥", name: "Tajribali" }
+                          : xp >= 300
+                            ? { icon: "⭐", name: "O'rtacha" }
+                            : xp >= 150
+                              ? { icon: "🚗", name: "Boshliq" }
+                              : { icon: "🌱", name: "Yangi" };
+
                     return (
-                      <div
-                        key={entry.id}
-                        className="podium-card"
-                        style={{
-                          animationDelay: `${podIdx * 80}ms`,
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        {/* Avatar */}
-                        <div style={{ position: "relative" }}>
+                      <div key={entry.id} className="podium-wrap">
+                        {/* ── Tooltip ── */}
+                        <div className="podium-tooltip">
                           <div
                             style={{
-                              width: isFirst ? 52 : 44,
-                              height: isFirst ? 52 : 44,
-                              borderRadius: "50%",
-                              background: `linear-gradient(135deg,${isMe ? "#2d4356,#89aac3" : "#52392f,#8c614f"})`,
+                              background: "white",
+                              borderRadius: 14,
+                              boxShadow:
+                                "0 8px 28px rgba(0,0,0,.13), 0 1.5px 4px rgba(0,0,0,.07)",
+                              border: "1px solid #f1f5f9",
+                              zIndex: 20,
+                            }}
+                          >
+                            {/* Tooltip body */}
+                            <div
+                              style={{
+                                padding: "10px 12px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 7,
+                              }}
+                            >
+                              {/* Daraja */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <span
+                                  style={{ fontSize: 11, color: "#94a3b8" }}
+                                >
+                                  Daraja
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: "#0f172a",
+                                  }}
+                                >
+                                  {rank.icon} {rank.name}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  height: 1,
+                                  background: "#f1f5f9",
+                                  margin: "1px 0",
+                                }}
+                              />
+
+                              {/* To'g'ri javoblar */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <span
+                                  style={{ fontSize: 11, color: "#94a3b8" }}
+                                >
+                                  To'g'ri javob
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: "#16a34a",
+                                  }}
+                                >
+                                  ✓ {entry.total_correct}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ── Podium card (o'zgarishsiz) ── */}
+                        <div
+                          className="podium-card"
+                          style={{
+                            animationDelay: `${podIdx * 80}ms`,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 6,
+                            zIndex: 20,
+                          }}
+                        >
+                          {/* Avatar */}
+                          <div style={{ position: "relative" }}>
+                            <div
+                              style={{
+                                width: isFirst ? 52 : 44,
+                                height: isFirst ? 52 : 44,
+                                borderRadius: "50%",
+                                background: `linear-gradient(135deg,${isMe ? "#2d4356,#89aac3" : "#cbd5e1"})`,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: isMe
+                                  ? "2.5px solid #89aac3"
+                                  : "2px solid #cbd5e1",
+                                boxShadow: isMe
+                                  ? "0 0 0 3px rgba(99,102,241,.2)"
+                                  : "none",
+                                fontSize: isFirst ? 18 : 15,
+                                fontWeight: 700,
+                                color: "white",
+                                fontFamily: "'Syne',sans-serif",
+                              }}
+                            >
+                              {entry.avatar_icon}
+                            </div>
+                            <span
+                              style={{
+                                position: "absolute",
+                                bottom: -4,
+                                right: -4,
+                                fontSize: isFirst ? 16 : 13,
+                              }}
+                            >
+                              {medal.label}
+                            </span>
+                          </div>
+
+                          {/* Name */}
+                          <div style={{ textAlign: "center" }}>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: isMe ? "#4f46e5" : "#0f172a",
+                                margin: 0,
+                                lineHeight: 1.2,
+                              }}
+                            >
+                              {entry.firstname}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: "#4f46e5",
+                                margin: "2px 0 0",
+                              }}
+                            >
+                              {entry.weekly_xp} XP
+                            </p>
+                          </div>
+
+                          {/* Podium block */}
+                          <div
+                            style={{
+                              width: "100%",
+                              height: heights[podIdx],
+                              background: medal.bg,
+                              borderRadius: "10px 10px 0 0",
+                              boxShadow: `0 -4px 16px ${medal.shadow}`,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              border: isMe
-                                ? "2.5px solid #52392f"
-                                : "2px solid #2d4356",
-                              boxShadow: isMe
-                                ? "0 0 0 3px rgba(99,102,241,.2)"
-                                : "none",
-                              fontSize: isFirst ? 18 : 15,
-                              fontWeight: 700,
-                              color: "white",
-                              fontFamily: "'Syne',sans-serif",
+                              flexDirection: "column",
+                              gap: 2,
                             }}
                           >
-                            {/* {initials(entry)}/ */}
-                            {entry.avatar_icon}
+                            <span
+                              style={{
+                                fontSize: isFirst ? 22 : 18,
+                                fontFamily: "'Syne',sans-serif",
+                                fontWeight: 800,
+                                color: "white",
+                              }}
+                            >
+                              #{realIdx + 1}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                color: "rgba(255,255,255,.8)",
+                                fontWeight: 600,
+                              }}
+                            >
+                              {entry.tests_count} test
+                            </span>
                           </div>
-                          <span
-                            style={{
-                              position: "absolute",
-                              bottom: -4,
-                              right: -4,
-                              fontSize: isFirst ? 16 : 13,
-                            }}
-                          >
-                            {medal.label}
-                          </span>
-                        </div>
-
-                        {/* Name */}
-                        <div style={{ textAlign: "center" }}>
-                          <p
-                            style={{
-                              fontSize: 12,
-                              fontWeight: 700,
-                              color: isMe ? "#4f46e5" : "#0f172a",
-                              margin: 0,
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            {entry.firstname}
-                          </p>
-                          <p
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: "#4f46e5",
-                              margin: "2px 0 0",
-                            }}
-                          >
-                            {entry.weekly_xp} XP
-                          </p>
-                        </div>
-
-                        {/* Podium block */}
-                        <div
-                          style={{
-                            width: "100%",
-                            height: heights[podIdx],
-                            background: medal.bg,
-                            borderRadius: "10px 10px 0 0",
-                            boxShadow: `0 -4px 16px ${medal.shadow}`,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexDirection: "column",
-                            gap: 2,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: isFirst ? 22 : 18,
-                              fontFamily: "'Syne',sans-serif",
-                              fontWeight: 800,
-                              color: "white",
-                            }}
-                          >
-                            #{realIdx + 1}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: 10,
-                              color: "rgba(255,255,255,.8)",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {entry.tests_count} test
-                          </span>
                         </div>
                       </div>
                     );
@@ -527,7 +647,6 @@ export default function WeeklyLeaderboard({
               )}
             </div>
 
-            {/* 4th+ list */}
             {entries.length > 3 && (
               <div style={{ padding: "0 0 8px" }}>
                 <div
@@ -616,7 +735,8 @@ export default function WeeklyLeaderboard({
                           border: isMe ? "2px solid #6366f1" : "none",
                         }}
                       >
-                        {initials(entry)}
+                        {/* {initials(entry)} */}
+                        {entry.avatar_icon}
                       </div>
 
                       {/* Name + bar */}
