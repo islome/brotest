@@ -78,7 +78,7 @@ export default function ProfileHero({
   const [lastname, setLastname] = useState(user.lastname);
   const [username, setUsername] = useState(user.username);
 
-  const currentIcon = user.avatar_icon || "🚗";
+  const currentIcon = user.avatar_icon || "🙂";
 
   // ── Save avatar icon ──
   async function handleSelectIcon(icon: string) {
@@ -188,7 +188,7 @@ export default function ProfileHero({
     <>
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         {/* Banner */}
-        <div className="h-24 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 relative overflow-hidden">
+        <div className="h-24 bg-blue-500 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-10"
             style={{
@@ -224,7 +224,7 @@ export default function ProfileHero({
             <div className="relative">
               <button
                 onClick={() => setIconPickerOpen((v) => !v)}
-                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 border-4 border-white shadow-lg flex items-center justify-center group relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
+                className="w-20 h-20 rounded-full bg-blue-400 border-4 border-white shadow-lg flex items-center justify-center group relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
                 title="Avatar o'zgartirish"
               >
                 <span className="text-4xl select-none">{currentIcon}</span>
