@@ -32,6 +32,7 @@ interface Props {
   rankObj: RankObj;
   nextRank: NextRank | null;
   xpProgress: number;
+  achievements: { type: string }[];
   fmtJoined: (iso: string) => string;
   onUserUpdate: (updated: Partial<UserData>) => void;
 }
@@ -55,6 +56,7 @@ export default function ProfileHero({
   rankObj,
   nextRank,
   xpProgress,
+  achievements,
   fmtJoined,
   onUserUpdate,
 }: Props) {
@@ -66,6 +68,18 @@ export default function ProfileHero({
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
 
+  const PRO_ACHIEVEMENTS = [
+    "passed_5",
+    "perfect_score",
+    "streak_3",
+    "streak_7",
+    "streak_30",
+    "leaderboard_1st",
+    "leaderboard_top3",
+  ];
+  const isPro = PRO_ACHIEVEMENTS.every((t) =>
+    achievements.some((a) => a.type === t),
+  );
   // ── Avatar state — user prop dan init, prop o'zgarganda sync ──
   const [activeIcon, setActiveIcon] = useState(user.avatar_icon ?? "🙂");
 
@@ -221,11 +235,19 @@ export default function ProfileHero({
             <div className="relative">
               <button
                 onClick={() => setIconPickerOpen((v) => !v)}
-                className="w-20 h-20 rounded-full bg-blue-400 border-4 border-white shadow-lg flex items-center justify-center group relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
+                className="w-20 h-20 rounded-full border-white shadow-lg flex items-center justify-center group relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
+                style={{
+                  background: isPro
+                    ? "#f4ebd2"
+                    : "#60a5fa",
+                  // PRO ring
+                  boxShadow: isPro
+                    ? "0 0 0 3px #fbbf24, 0 0 0 6px #fef3c7, 0 8px 24px rgba(245,158,11,.3)"
+                    : undefined,
+                }}
               >
-                {/* ← activeIcon ishlatilayapti */}
                 <span className="text-4xl select-none">{activeIcon}</span>
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <svg
                     width="18"
                     height="18"
@@ -246,6 +268,30 @@ export default function ProfileHero({
               >
                 {rankObj.icon}
               </div>
+
+              {/* PRO badge — avatar ustida */}
+              {isPro && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    left: "80%",
+                    transform: "translateX(-50%)",
+                    background: "#132620",
+                    color: "white",
+                    fontSize: 9,
+                    fontWeight: 800,
+                    padding: "2px 7px",
+                    borderRadius: 999,
+                    letterSpacing: "0.08em",
+                    whiteSpace: "nowrap",
+                    boxShadow: "0 2px 8px rgba(245,158,11,.4)",
+                  }}
+                  title="SIZ BU BELGINI BARCHA UNVONLARGA ERISHGANDAN SO'NG OLGANSIZ"
+                >
+                  ✨ PRO
+                </div>
+              )}
 
               {/* Icon picker */}
               {iconPickerOpen && (

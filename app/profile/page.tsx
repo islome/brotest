@@ -576,6 +576,7 @@ export default function ProfilePage() {
           nextRank={nextRank}
           xpProgress={xpProgress}
           fmtJoined={fmtJoined}
+          achievements={achievements}
           onUserUpdate={(updated) =>
             setUser((prev) => (prev ? { ...prev, ...updated } : prev))
           }
