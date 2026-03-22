@@ -414,15 +414,13 @@ export default function ProfilePage() {
         return;
       }
 
-      // 2. users table dan profil
       const { data: userData, error: userErr } = await supabase
         .from("users")
-        .select("id, firstname, lastname, username, role, created_at")
+        .select("id, firstname, lastname, username, role, avatar_icon, created_at")
         .eq("id", authUser.id)
         .single();
 
       if (userErr || !userData) {
-        // users table da yo'q — auth bor lekin profil yo'q
         // auth user ma'lumotidan minimal profil yasaymiz
         setUser({
           id: authUser.id,

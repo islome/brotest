@@ -1,8 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 
-// ── Types (mavjud profile page dan) ──────────────────
 interface UserData {
   id: string;
   firstname: string;
@@ -12,7 +11,6 @@ interface UserData {
   created_at: string;
   avatar_icon?: string;
 }
-
 interface RankObj {
   name: string;
   icon: string;
@@ -20,17 +18,14 @@ interface RankObj {
   bg: string;
   border: string;
 }
-
 interface Stats {
   xp: number;
 }
-
 interface NextRank {
   icon: string;
   name: string;
   minXP: number;
 }
-
 interface Props {
   user: UserData;
   stats: Stats;
@@ -41,7 +36,6 @@ interface Props {
   onUserUpdate: (updated: Partial<UserData>) => void;
 }
 
-// ── Avatar icons ──────────────────────────────────────
 const AVATAR_ICONS = [
   "🚗",
   "🏎️",
@@ -55,7 +49,6 @@ const AVATAR_ICONS = [
   "🚒",
 ];
 
-// ── Component ─────────────────────────────────────────
 export default function ProfileHero({
   user,
   stats,
@@ -73,15 +66,21 @@ export default function ProfileHero({
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
 
+  // ── Avatar state — user prop dan init, prop o'zgarganda sync ──
+  const [activeIcon, setActiveIcon] = useState(user.avatar_icon ?? "🙂");
+
+  useEffect(() => {
+    setActiveIcon(user.avatar_icon ?? "🙂");
+  }, [user.avatar_icon]);
+
   // Edit form state
   const [firstname, setFirstname] = useState(user.firstname);
   const [lastname, setLastname] = useState(user.lastname);
   const [username, setUsername] = useState(user.username);
 
-  const currentIcon = user.avatar_icon || "🙂";
-
   // ── Save avatar icon ──
   async function handleSelectIcon(icon: string) {
+    // ← parametr nomi o'zgartirildi
     setSavingIcon(true);
     const { error } = await supabase
       .from("users")
@@ -89,6 +88,7 @@ export default function ProfileHero({
       .eq("id", user.id);
 
     if (!error) {
+      setActiveIcon(icon); // ← state darhol yangilanadi
       onUserUpdate({ avatar_icon: icon });
       setIconPickerOpen(false);
     }
@@ -117,7 +117,6 @@ export default function ProfileHero({
 
     setSavingEdit(true);
 
-    // Username band emasmi (o'zi bundan tashqari)
     const { data: existing } = await supabase
       .from("users")
       .select("id")
@@ -197,8 +196,6 @@ export default function ProfileHero({
               backgroundSize: "28px 28px",
             }}
           />
-
-          {/* Edit button — banner ustida */}
           <button
             onClick={openEdit}
             className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/20 hover:bg-white/35 border border-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-all backdrop-blur-sm"
@@ -220,15 +217,14 @@ export default function ProfileHero({
 
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-9 mb-4">
-            {/* Avatar — bosish mumkin */}
+            {/* Avatar */}
             <div className="relative">
               <button
                 onClick={() => setIconPickerOpen((v) => !v)}
                 className="w-20 h-20 rounded-full bg-blue-400 border-4 border-white shadow-lg flex items-center justify-center group relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
-                title="Avatar o'zgartirish"
               >
-                <span className="text-4xl select-none">{currentIcon}</span>
-                {/* Hover overlay */}
+                {/* ← activeIcon ishlatilayapti */}
+                <span className="text-4xl select-none">{activeIcon}</span>
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
                   <svg
                     width="18"
@@ -251,7 +247,7 @@ export default function ProfileHero({
                 {rankObj.icon}
               </div>
 
-              {/* Icon picker dropdown */}
+              {/* Icon picker */}
               {iconPickerOpen && (
                 <div
                   className="absolute top-full left-0 mt-2 z-30 bg-white rounded-2xl border border-slate-200 shadow-xl p-3"
@@ -266,8 +262,9 @@ export default function ProfileHero({
                         key={icon}
                         onClick={() => handleSelectIcon(icon)}
                         disabled={savingIcon}
-                        className={`w-full aspect-square rounded-xl text-2xl flex items-center justify-center transition-all hover:scale-110 hover:bg-indigo-50 ${
-                          currentIcon === icon
+                        className={`w-full aspect-square rounded-xl text-2xl flex items-center justify-center transition-all hover:scale-110 ${
+                          // ← activeIcon bilan taqqoslanayapti
+                          activeIcon === icon
                             ? "bg-indigo-100 ring-2 ring-indigo-400 scale-105"
                             : "bg-slate-50 hover:bg-indigo-50"
                         }`}
@@ -276,6 +273,20 @@ export default function ProfileHero({
                       </button>
                     ))}
                   </div>
+                  {savingIcon && (
+                    <div className="flex justify-center mt-2">
+                      <div
+                        style={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          border: "2px solid #e2e8f0",
+                          borderTopColor: "#6366f1",
+                          animation: "spin .7s linear infinite",
+                        }}
+                      />
+                    </div>
+                  )}
                   <button
                     onClick={() => setIconPickerOpen(false)}
                     className="w-full mt-2.5 text-xs font-medium text-slate-400 hover:text-slate-600 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
@@ -355,7 +366,6 @@ export default function ProfileHero({
         </div>
       </div>
 
-      {/* Click outside — icon picker yopish */}
       {iconPickerOpen && (
         <div
           className="fixed inset-0 z-20"
@@ -363,7 +373,7 @@ export default function ProfileHero({
         />
       )}
 
-      {/* ══ EDIT MODAL ══ */}
+      {/* EDIT MODAL */}
       {editOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -379,7 +389,6 @@ export default function ProfileHero({
             className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden"
             style={{ animation: "modalIn .25s cubic-bezier(.22,1,.36,1)" }}
           >
-            {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <h3 className="font-bold text-slate-800 text-base">
                 Profilni tahrirlash
@@ -422,7 +431,6 @@ export default function ProfileHero({
                 </div>
               )}
 
-              {/* Ism + familiya */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label style={labelStyle}>Ism</label>
@@ -458,7 +466,6 @@ export default function ProfileHero({
                 </div>
               </div>
 
-              {/* Username */}
               <div>
                 <label style={labelStyle}>Username</label>
                 <div style={{ position: "relative" }}>
@@ -494,7 +501,6 @@ export default function ProfileHero({
                 </div>
               </div>
 
-              {/* Buttons */}
               <div className="flex gap-3 pt-1">
                 <button
                   onClick={() => setEditOpen(false)}
@@ -509,25 +515,16 @@ export default function ProfileHero({
                 >
                   {savingEdit ? (
                     <>
-                      <svg
-                        className="animate-spin w-3.5 h-3.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v8H4z"
-                        />
-                      </svg>
+                      <div
+                        style={{
+                          width: 14,
+                          height: 14,
+                          borderRadius: "50%",
+                          border: "2px solid rgba(255,255,255,.3)",
+                          borderTopColor: "white",
+                          animation: "spin .7s linear infinite",
+                        }}
+                      />
                       Saqlanmoqda...
                     </>
                   ) : (
@@ -540,7 +537,10 @@ export default function ProfileHero({
         </div>
       )}
 
-      <style>{`@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
+      <style>{`
+        @keyframes modalIn { from{opacity:0;transform:scale(.96) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </>
   );
 }
