@@ -237,9 +237,7 @@ export default function ProfileHero({
                 onClick={() => setIconPickerOpen((v) => !v)}
                 className="w-20 h-20 rounded-full border-white shadow-lg flex items-center justify-center group relative overflow-hidden cursor-pointer transition-transform hover:scale-105"
                 style={{
-                  background: isPro
-                    ? "#f4ebd2"
-                    : "#60a5fa",
+                  background: isPro ? "#f4ebd2" : "#60a5fa",
                   // PRO ring
                   boxShadow: isPro
                     ? "0 0 0 3px #fbbf24, 0 0 0 6px #fef3c7, 0 8px 24px rgba(245,158,11,.3)"
@@ -269,27 +267,84 @@ export default function ProfileHero({
                 {rankObj.icon}
               </div>
 
-              {/* PRO badge — avatar ustida */}
               {isPro && (
                 <div
                   style={{
                     position: "absolute",
-                    top: -6,
+                    top: -10,
                     left: "80%",
                     transform: "translateX(-50%)",
-                    background: "#132620",
-                    color: "white",
-                    fontSize: 9,
-                    fontWeight: 800,
-                    padding: "2px 7px",
-                    borderRadius: 999,
-                    letterSpacing: "0.08em",
+                    zIndex: 10,
                     whiteSpace: "nowrap",
-                    boxShadow: "0 2px 8px rgba(245,158,11,.4)",
                   }}
-                  title="SIZ BU BELGINI BARCHA UNVONLARGA ERISHGANDAN SO'NG OLGANSIZ"
                 >
-                  ✨ PRO
+                  <style>{`
+      @keyframes proPulse {
+        0%, 100% { box-shadow: 0 0 6px 2px rgba(251,191,36,.5), 0 0 12px 4px rgba(245,158,11,.3); }
+        50%       { box-shadow: 0 0 10px 4px rgba(251,191,36,.8), 0 0 20px 8px rgba(245,158,11,.5); }
+      }
+      @keyframes proShine {
+        0%   { left: -60%; }
+        100% { left: 120%; }
+      }
+      @keyframes proCrown {
+        0%, 100% { transform: translateY(0) rotate(-5deg); }
+        50%       { transform: translateY(-2px) rotate(5deg); }
+      }
+    `}</style>
+
+                  <div
+                    style={{
+                      position: "relative",
+                      overflow: "hidden",
+                      background:
+                        "linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b)",
+                      backgroundSize: "200% 100%",
+                      borderRadius: 999,
+                      padding: "3px 10px 3px 7px",
+                      border: "1.5px solid #fef3c7",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      animation: "proPulse 2s ease-in-out infinite",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        bottom: 0,
+                        width: "40%",
+                        background:
+                          "linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent)",
+                        animation: "proShine 2.5s ease-in-out infinite",
+                        pointerEvents: "none",
+                      }}
+                    />
+
+                    <span
+                      style={{
+                        fontSize: 11,
+                        display: "inline-block",
+                        animation: "proCrown 2s ease-in-out infinite",
+                      }}
+                    >
+                      👑
+                    </span>
+
+                    <span
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 800,
+                        color: "#78350f",
+                        letterSpacing: "0.1em",
+                        position: "relative",
+                        zIndex: 1,
+                      }}
+                    >
+                      PRO
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -371,7 +426,7 @@ export default function ProfileHero({
               </span>
               {user.role === "admin" && (
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-violet-600 bg-violet-50 border-violet-200">
-                  👤 Admin
+                  🧑🏻‍💻 Admin
                 </span>
               )}
             </div>
