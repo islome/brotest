@@ -394,7 +394,7 @@ export default function MainPage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="fade-up-1 inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold px-4 py-2 rounded-full mb-8">
               <span className="dot-pulse w-1.5 h-1.5 bg-indigo-500 rounded-full" />
-              O'zbekistonda #1 avtoulov guvohnomasi platformasi
+              Avtomobil guvohnomasi uchun test platformasi
             </div>
 
             <div className="fade-up-2 mb-6">
@@ -491,12 +491,12 @@ export default function MainPage() {
           <div className="max-w-3xl mx-auto grid grid-cols-3 gap-3 sm:gap-4">
             {[
               {
-                val: qCount || "—",
+                val: `${qCount}+` || "1025",
                 label: "Savol bazasida",
                 sub: "real imtihon savollari",
               },
               {
-                val: uCount || "1.2K+",
+                val: `${uCount}+` || "1.2K+",
                 label: "Foydalanuvchilar",
                 sub: "ro'yxatdan o'tgan",
               },
@@ -527,10 +527,16 @@ export default function MainPage() {
           </div>
         </section>
 
-        {/* ══ MARQUEE ══ */}
         <div className="marquee-wrap border-y border-slate-200 bg-white py-3.5 mb-16 sm:mb-20 overflow-hidden">
-          <div className="marquee-track">
-            {[...Array(2)].map((_, ri) => (
+          <div
+            className="marquee-track"
+            style={{
+              display: "flex",
+              width: "max-content",
+              animation: "marquee-scroll 25s linear infinite",
+            }}
+          >
+            {[0, 1].map((ri) => (
               <div key={ri} className="flex items-center gap-10 px-5">
                 {[
                   "Yo'l harakati qoidalari",

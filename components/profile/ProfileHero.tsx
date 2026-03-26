@@ -40,14 +40,14 @@ interface Props {
 const AVATAR_ICONS = [
   "🚗",
   "🏎️",
-  "🚕",
-  "🚙",
-  "🚌",
   "🏍️",
   "🛻",
   "🚓",
   "🚑",
-  "🚒",
+  "🎠",
+  "🧑🏻‍💻",
+  "🚀",
+  "🗿",
 ];
 
 export default function ProfileHero({
