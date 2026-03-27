@@ -163,6 +163,8 @@ export default function TestPage() {
   const [saved, setSaved] = useState(false);
   const [skipCountdown, setSkipCountdown] = useState<number | null>(null);
   const [vis, setVis] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState<string | null>(null);
   const finishTestRef = useRef<((dur?: number) => Promise<void>) | null>(null);
 
   const answersRef = useRef(answers);
@@ -1302,6 +1304,10 @@ export default function TestPage() {
               {q.image && (
                 <div className="test-img-mobile">
                   <img
+                    onClick={() => {
+                      setModalImage(imgUrl(q.image));
+                      setModalOpen(true);
+                    }}
                     src={imgUrl(q.image) ?? ""}
                     alt="savol rasmi"
                     loading="lazy"
@@ -1311,7 +1317,15 @@ export default function TestPage() {
                       objectFit: "contain",
                       maxHeight: 220,
                       borderRadius: "18px 18px 0 0",
+                      cursor: "pointer",
+                      transition: "opacity .2s",
                     }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.opacity = "0.8")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.opacity = "1")
+                    }
                   />
                 </div>
               )}
@@ -1564,7 +1578,6 @@ export default function TestPage() {
               )}
             </div>
 
-            {/* ── O'NG (faqat desktop): rasm ── */}
             {q.image && (
               <div className="test-img-desktop">
                 <div
@@ -1579,6 +1592,10 @@ export default function TestPage() {
                   }}
                 >
                   <img
+                    onClick={() => {
+                      setModalImage(imgUrl(q.image));
+                      setModalOpen(true);
+                    }}
                     src={imgUrl(q.image) ?? ""}
                     alt="savol rasmi"
                     loading="lazy"
@@ -1587,7 +1604,15 @@ export default function TestPage() {
                       display: "block",
                       objectFit: "contain",
                       maxHeight: 340,
+                      cursor: "pointer",
+                      transition: "opacity .2s",
                     }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.opacity = "0.8")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.opacity = "1")
+                    }
                   />
                 </div>
               </div>
@@ -1803,6 +1828,100 @@ export default function TestPage() {
             </button>
           </div>
         </div>
+
+        {modalOpen && modalImage && (
+          <div
+            onClick={() => setModalOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,.7)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 100,
+              padding: 16,
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "relative",
+                background: "white",
+                borderRadius: 20,
+                overflow: "hidden",
+                maxWidth: "90vw",
+                maxHeight: "90vh",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: "0 20px 60px rgba(0,0,0,.3)",
+              }}
+            >
+              <button
+                onClick={() => setModalOpen(false)}
+                style={{
+                  position: "absolute",
+                  top: 12,
+                  right: 12,
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,.95)",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
+                  transition: "all .2s",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "rgba(255,255,255,1)";
+                  (e.currentTarget as HTMLElement).style.transform = "scale(1.1)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "rgba(255,255,255,.95)";
+                  (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+                }}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="#0f172a"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+
+              <div
+                style={{
+                  flex: 1,
+                  overflow: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src={modalImage}
+                  alt="enlarged view"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
