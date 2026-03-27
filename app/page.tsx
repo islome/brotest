@@ -10,6 +10,32 @@ interface UserData {
   role: string;
 }
 
+function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTime: number | null = null;
+    const duration = 3000;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      setCount(Math.floor(easedProgress * value));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    const animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [value]);
+
+  return <>{count.toLocaleString()}{suffix}</>;
+}
+
 export default function MainPage() {
   const supabase = createClient();
   const router = useRouter();
@@ -491,17 +517,20 @@ export default function MainPage() {
           <div className="max-w-3xl mx-auto grid grid-cols-3 gap-3 sm:gap-4">
             {[
               {
-                val: `${qCount}+` || "1025",
+                target: qCount,
+                suffix: "+",
                 label: "Savol bazasida",
                 sub: "real imtihon savollari",
               },
               {
-                val: `${uCount}+` || "1.2K+",
+                target: uCount,
+                suffix: "+",
                 label: "Foydalanuvchilar",
                 sub: "ro'yxatdan o'tgan",
               },
               {
-                val: "70%",
+                target: 70,
+                suffix: "%",
                 label: "O'tish chegarasi",
                 sub: "muvaffaqiyatli hisob",
               },
@@ -514,7 +543,7 @@ export default function MainPage() {
                   className="font-syne text-indigo-600 leading-none mb-2"
                   style={{ fontSize: "clamp(28px,6vw,44px)" }}
                 >
-                  {s.val}
+                  <CountUp value={s.target} suffix={s.suffix} />
                 </p>
                 <p className="text-xs sm:text-sm font-semibold text-slate-700 mb-1">
                   {s.label}
