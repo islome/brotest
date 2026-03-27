@@ -224,9 +224,24 @@ export default function TestPage() {
       const elapsed = dur ?? elapsedRef.current;
       const pct = Math.round((correct / qs.length) * 100);
 
+      // finishTest ichida, pct hisoblanganidan keyin:
+
+      function playResultSound(success: boolean) {
+        try {
+          const audio = new Audio(
+            success ? "/sounds/success.wav" : "/sounds/fail.wav",
+          );
+          audio.volume = 0.8;
+          audio.play();
+        } catch (e) {}
+      }
+
       if (pct >= 80) {
         setShowFireworks(true);
-        setTimeout(() => setShowFireworks(false), 4000);
+        setTimeout(() => setShowFireworks(false), 6000);
+        playResultSound(true);
+      } else {
+        playResultSound(false);
       }
 
       const {
