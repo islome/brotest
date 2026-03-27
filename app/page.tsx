@@ -8,6 +8,7 @@ interface UserData {
   lastname: string;
   username: string;
   role: string;
+  avatar_icon: string;
 }
 
 function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -56,7 +57,7 @@ export default function MainPage() {
       if (au) {
         const { data } = await supabase
           .from("users")
-          .select("firstname,lastname,username,role")
+          .select("firstname,lastname,username,role, avatar_icon")
           .eq("id", au.id)
           .single();
         if (data) setUser(data);
@@ -209,9 +210,9 @@ export default function MainPage() {
                     onClick={() => setMenuOpen((v) => !v)}
                     className="flex items-center gap-2.5 bg-white border border-slate-200 hover:border-indigo-300 rounded-xl px-3 py-2 transition-all cursor-pointer"
                   >
-                    <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">
-                        {initials}
+                    <div className="w-7 h-7 flex items-center justify-center">
+                      <span className="text-xl mb-2">
+                        {user.avatar_icon}
                       </span>
                     </div>
                     <span className="text-sm font-medium text-slate-700">
@@ -325,9 +326,9 @@ export default function MainPage() {
             {/* Mobile right */}
             <div className="flex md:hidden items-center gap-2">
               {user && (
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">
-                    {initials}
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <span className="text-xs mb-1">
+                    {user.avatar_icon}
                   </span>
                 </div>
               )}
