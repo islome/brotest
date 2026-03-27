@@ -217,14 +217,12 @@ export default function TestPage() {
       }
       setSaved(true);
 
-      const ans = answersRef.current; // ✅ har doim fresh
-      const qs = questionsRef.current; // ✅ har doim fresh
+      const ans = answersRef.current;
+      const qs = questionsRef.current; 
       const correct = ans.filter((a, i) => a === qs[i]?.answer).length;
       const wrong = ans.filter((a) => a !== null).length - correct;
       const elapsed = dur ?? elapsedRef.current;
       const pct = Math.round((correct / qs.length) * 100);
-
-      // finishTest ichida, pct hisoblanganidan keyin:
 
       function playResultSound(success: boolean) {
         try {
