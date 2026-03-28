@@ -535,20 +535,26 @@ export default function ProfilePage() {
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <svg
-                width="14"
-                height="14"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                viewBox="0 0 24 24"
+            <div
+                style={{
+                  width: 30,
+                  height: 30,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}
               >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
+                <img
+                  src="/logo.png"
+                  alt="Brotest Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
             <span className="font-bold text-slate-800 text-sm">Brotest</span>
           </a>
           <div className="flex items-center gap-2">

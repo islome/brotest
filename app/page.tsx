@@ -162,19 +162,25 @@ export default function MainPage() {
               href="/"
               className="flex items-center gap-2.5 no-underline shrink-0"
             >
-              <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  src="/logo.png"
+                  alt="Brotest Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
               </div>
               <span className="font-syne text-xl text-slate-900 tracking-tight">
                 Brotest

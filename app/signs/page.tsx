@@ -211,23 +211,21 @@ export default function StreetSignsPage() {
                 style={{
                   width: 30,
                   height: 30,
-                  background: "#4f46e5",
-                  borderRadius: 10,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  overflow: "hidden",
                 }}
               >
-                <svg
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
+                <img
+                  src="/logo.png"
+                  alt="Brotest Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
               </div>
               <span className="fs" style={{ fontSize: 16, color: "#0f172a" }}>
                 Brotest
