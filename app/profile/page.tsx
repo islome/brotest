@@ -354,6 +354,7 @@ export default function ProfilePage() {
     wrongs: WrongAnswer[];
   } | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
+  const [hoveredRank, setHoveredRank] = useState<typeof RANKS[0] | null>(null);
 
   interface WrongAnswer {
     id: number;
@@ -2144,15 +2145,17 @@ export default function ProfilePage() {
               Daraja tizimi
             </h2>
           </div>
-          <div className="p-3 grid grid-cols-5 gap-2">
+          <div className="p-3 grid grid-cols-5 gap-2 relative">
             {RANKS.map((r) => (
               <div
                 key={r.name}
-                className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${
+                className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all cursor-pointer ${
                   rankObj.name === r.name
                     ? `${r.bg} ${r.border} shadow-sm scale-105`
                     : "border-slate-100 hover:bg-slate-50"
                 }`}
+                onMouseEnter={() => setHoveredRank(r)}
+                onMouseLeave={() => setHoveredRank(null)}
               >
                 <span className="text-xl">{r.icon}</span>
                 <span
@@ -2170,6 +2173,37 @@ export default function ProfilePage() {
                 )}
               </div>
             ))}
+
+            {/* Hover Modal */}
+            {hoveredRank && (
+              <div
+                className="absolute z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center"
+                style={{
+                  top: "-60px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{hoveredRank.icon}</span>
+                  <div>
+                    <div className={`text-sm font-semibold ${hoveredRank.color}`}>
+                      {hoveredRank.name}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {stats.xp >= hoveredRank.minXP
+                        ? "Sizda bor"
+                        : `${hoveredRank.minXP - stats.xp} XP kerak`}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"
+                  style={{ marginTop: "-1px" }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
