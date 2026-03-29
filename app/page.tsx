@@ -447,8 +447,8 @@ export default function MainPage() {
                   fill="none"
                 >
                   <path
-                    d="M4 8 C80 2 260 2 396 8"
-                    stroke="#a5b4fc"
+                    d="M4 15 C80 5 200 5 396 15"
+                    stroke="#f3ac40"
                     strokeWidth="4"
                     strokeLinecap="round"
                   />
