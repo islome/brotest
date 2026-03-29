@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 
 interface UserData {
@@ -39,7 +38,6 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
 
 export default function MainPage() {
   const supabase = createClient();
-  const router = useRouter();
 
   const [user, setUser] = useState<UserData | null>(null);
   const [qCount, setQCount] = useState<number>(0);
@@ -441,7 +439,7 @@ export default function MainPage() {
                 className="font-syne text-indigo-600 leading-[1.02] tracking-[-0.035em] m-0 inline-block relative"
                 style={{ fontSize: "clamp(32px, 7vw, 100px)" }}
               >
-                guvohnomasini
+                guvohnomasiga
                 <svg
                   className="absolute left-0 w-full overflow-visible"
                   style={{ bottom: -6 }}
@@ -460,7 +458,7 @@ export default function MainPage() {
                 className="font-syne text-slate-900 leading-[1.02] tracking-[-0.035em] m-0"
                 style={{ fontSize: "clamp(22px, 7vw, 100px)" }}
               >
-                oling!
+                topshiring!
               </h1>
             </div>
 
