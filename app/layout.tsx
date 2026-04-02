@@ -7,6 +7,11 @@ import NextTopLoader from "nextjs-toploader";
 export const metadata: Metadata = {
   title: "Drivers License Tests",
   description: "Brotest bu haydovchilik guvohnomasini olishni reja qilgan odamlar uchun tekin test va yo'l belgilarini taqdim etuvchi website.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/favicon.ico",
+    apple: "/logo.png",
+  }
 };
 
 export default function RootLayout({
