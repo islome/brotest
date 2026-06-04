@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 
 interface UserData {
@@ -84,6 +85,7 @@ export default function MainPage() {
   const navLinks = [
     { href: "/test", label: "Test topshirish" },
     { href: "/signs", label: "Yo'l belgilari" },
+    { href: "/pricing", label: "Obuna" },
     { href: "/profile", label: "Profil" },
   ];
 
@@ -156,7 +158,7 @@ export default function MainPage() {
         >
           <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
             {/* Logo */}
-            <a
+            <Link
               href="/"
               className="flex items-center gap-2.5 no-underline shrink-0"
             >
@@ -183,7 +185,7 @@ export default function MainPage() {
               <span className="font-syne text-xl text-slate-900 tracking-tight">
                 Brotest
               </span>
-            </a>
+            </Link>
 
             {/* Desktop center links */}
             <div className="hidden md:flex items-center gap-1">
