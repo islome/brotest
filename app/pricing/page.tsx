@@ -94,7 +94,7 @@ export default function PricingPage() {
     {
       id: "plus",
       name: "Plus",
-      price: 4.99,
+      price: 2.99,
       billingPeriod: "oy",
       description: "Cheksiz imkoniyatlar va statistika",
       cta: "Yuksaltirish",
@@ -109,7 +109,7 @@ export default function PricingPage() {
     {
       id: "life",
       name: "Life",
-      price: 49.99,
+      price: 39.99,
       billingPeriod: "bir vaqta",
       description: "Abadiy barcha xususiyatlar",
       cta: "Xarid qilish",
