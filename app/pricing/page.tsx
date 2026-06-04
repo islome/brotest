@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import Link from "next/link";
 
 interface UserData {
   firstname: string;
@@ -11,27 +12,39 @@ interface UserData {
 }
 
 export default function PricingPage() {
-  const supabase = createClient();
   const [user, setUser] = useState<UserData | null>(null);
   const [vis, setVis] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setVis(true), 60);
     async function init() {
-      const {
-        data: { user: au },
-      } = await supabase.auth.getUser();
-      if (au) {
-        const { data } = await supabase
-          .from("users")
-          .select("firstname,lastname,username,subscription,avatar_icon")
-          .eq("id", au.id)
-          .single();
-        if (data) setUser(data);
+      try {
+        const supabase = createClient();
+        const {
+          data: { user: au },
+        } = await supabase.auth.getUser();
+        if (au) {
+          const { data } = await supabase
+            .from("users")
+            .select("firstname,lastname,username,subscription,avatar_icon")
+            .eq("id", au.id)
+            .single();
+          if (data) setUser(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
       }
     }
     init();
   }, []);
+
+  const navLinks = [
+    { href: "/test", label: "Test topshirish" },
+    { href: "/signs", label: "Yo'l belgilari" },
+    { href: "/pricing", label: "Obuna" },
+    { href: "/profile", label: "Profil" },
+  ];
 
   const pricingPlans = [
     {
@@ -101,6 +114,108 @@ export default function PricingPage() {
       `}</style>
 
       <div className="font-dm min-h-screen bg-[#f8f9fc]">
+        {/* ══ NAVBAR ══ */}
+        <nav
+          className="sticky top-0 z-50 border-b border-slate-200"
+          style={{
+            background: "rgba(255,255,255,.88)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 no-underline shrink-0"
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  src="/logo.png"
+                  alt="Brotest Logo"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+              <span className="font-syne text-xl text-slate-900 tracking-tight">
+                Brotest
+              </span>
+            </Link>
+
+            {/* Desktop center links */}
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="text-sm font-medium text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-xl transition-all no-underline"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Desktop auth */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className="flex items-center gap-2.5 bg-white border border-slate-200 hover:border-indigo-300 rounded-xl px-3 py-2 transition-all cursor-pointer"
+                >
+                  <div className="w-7 h-7 flex items-center justify-center">
+                    <span className="text-xl mb-2">{user.avatar_icon}</span>
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">
+                    {user.firstname}
+                  </span>
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href="/auth"
+                    className="text-sm font-medium text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl transition-all no-underline"
+                  >
+                    Kirish
+                  </Link>
+                  <Link
+                    href="/auth"
+                    className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-xl transition-all no-underline"
+                  >
+                    Ro'yxatdan o'tish
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center gap-2">
+              {user ? (
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <span className="text-lg">{user.avatar_icon}</span>
+                </div>
+              ) : (
+                <Link
+                  href="/auth"
+                  className="text-sm font-bold text-indigo-600 no-underline"
+                >
+                  Kirish
+                </Link>
+              )}
+            </div>
+          </div>
+        </nav>
+
         {/* ══ HERO SECTION ══ */}
         <section className="px-5 pt-16 sm:pt-20 pb-12">
           <div className="max-w-4xl mx-auto text-center">
@@ -121,7 +236,6 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* ══ PRICING CARDS ══ */}
         <section className="px-5 py-12 sm:py-16">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -287,7 +401,7 @@ export default function PricingPage() {
                   O'zbekiston haydovchilik imtihoniga tayyorlaning va yuksak natija oling.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <a
+                  <Link 
                     href="/test"
                     className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-white hover:-translate-y-0.5 text-indigo-700 font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl transition-all shadow-lg no-underline"
                   >
@@ -295,14 +409,14 @@ export default function PricingPage() {
                       <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
                     Testni boshlash
-                  </a>
+                  </Link>
                   {!user && (
-                    <a
+                    <Link 
                       href="/auth"
                       className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 hover:-translate-y-0.5 border border-white/25 text-white font-semibold text-sm sm:text-base px-7 py-3.5 rounded-2xl transition-all no-underline"
                     >
                       Ro'yxatdan o'tish
-                    </a>
+                    </Link>
                   )}
                 </div>
               </div>
@@ -336,16 +450,16 @@ export default function PricingPage() {
               {[
                 { href: "/test", l: "Test" },
                 { href: "/signs", l: "Yo'l belgilari" },
-                { href: "/pricing", l: "Narxlar" },
+                { href: "/pricing", l: "Obuna" },
                 { href: "/profile", l: "Profil" },
               ].map((x) => (
-                <a
+                <Link 
                   key={x.href}
                   href={x.href}
                   className="text-xs text-slate-400 hover:text-indigo-600 transition-colors no-underline"
                 >
                   {x.l}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
