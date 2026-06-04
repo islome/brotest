@@ -10,6 +10,7 @@ interface UserData {
   role: string;
   created_at: string;
   avatar_icon?: string;
+  subscription?: string;
 }
 interface RankObj {
   name: string;
@@ -427,6 +428,16 @@ export default function ProfileHero({
               {user.role === "admin" && (
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-violet-600 bg-violet-50 border-violet-200">
                   🧑🏻‍💻 Admin
+                </span>
+              )}
+              {user.subscription === "plus" && (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full border text-indigo-600 bg-indigo-50 border-indigo-200">
+                  ⚡ Plus
+                </span>
+              )}
+              {user.subscription === "life" && (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full border text-purple-600 bg-purple-50 border-purple-200">
+                  ♾ Life
                 </span>
               )}
             </div>

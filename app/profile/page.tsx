@@ -14,6 +14,7 @@ interface UserData {
   role: string;
   avatar_icon?: string;
   created_at: string;
+  subscription?: string;
 }
 
 interface StreakData {
@@ -417,7 +418,7 @@ export default function ProfilePage() {
 
       const { data: userData, error: userErr } = await supabase
         .from("users")
-        .select("id, firstname, lastname, username, role, avatar_icon, created_at")
+        .select("id, firstname, lastname, username, role, avatar_icon, created_at, subscription")
         .eq("id", authUser.id)
         .single();
 

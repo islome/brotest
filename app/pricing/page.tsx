@@ -2,8 +2,11 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import PaymentModal from "@/components/PaymentModal";
 
 interface UserData {
+  id: string;
   firstname: string;
   lastname: string;
   username: string;
@@ -11,10 +14,18 @@ interface UserData {
   avatar_icon: string;
 }
 
+const SUB_BADGE: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  plus: { label: "Plus", color: "#4f46e5", bg: "#eef2ff", border: "#c7d2fe" },
+  life: { label: "Life", color: "#7c3aed", bg: "#f5f3ff", border: "#ddd6fe" },
+};
+
 export default function PricingPage() {
+  const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [vis, setVis] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<"plus" | "life" | null>(null);
+  const [successPlan, setSuccessPlan] = useState<string | null>(null);
 
   useEffect(() => {
     setTimeout(() => setVis(true), 60);
@@ -27,7 +38,7 @@ export default function PricingPage() {
         if (au) {
           const { data } = await supabase
             .from("users")
-            .select("firstname,lastname,username,subscription,avatar_icon")
+            .select("id,firstname,lastname,username,subscription,avatar_icon")
             .eq("id", au.id)
             .single();
           if (data) setUser(data);
@@ -39,12 +50,29 @@ export default function PricingPage() {
     init();
   }, []);
 
+  function handlePlanClick(planId: "plus" | "life") {
+    if (!user) {
+      router.push("/auth");
+      return;
+    }
+    setSelectedPlan(planId);
+  }
+
+  function handlePaySuccess(plan: string) {
+    setUser((prev) => prev ? { ...prev, subscription: plan } : prev);
+    setSelectedPlan(null);
+    setSuccessPlan(plan);
+    setTimeout(() => setSuccessPlan(null), 4000);
+  }
+
   const navLinks = [
     { href: "/test", label: "Test topshirish" },
     { href: "/signs", label: "Yo'l belgilari" },
     { href: "/pricing", label: "Obuna" },
     { href: "/profile", label: "Profil" },
   ];
+
+  const currentSub = user?.subscription;
 
   const pricingPlans = [
     {
@@ -100,6 +128,16 @@ export default function PricingPage() {
     { name: "Barcha xususiyatlar", category: "Premium" },
   ];
 
+  function getPlanCta(planId: string) {
+    if (planId === "free") return null;
+    if (currentSub === "life") return { label: "Aktiv ✓", disabled: true };
+    if (currentSub === "plus" && planId === "plus") return { label: "Aktiv ✓", disabled: true };
+    if (currentSub === "plus" && planId === "life") return { label: "Life ga o'tish", disabled: false };
+    return null;
+  }
+
+  const subBadge = currentSub ? SUB_BADGE[currentSub] : null;
+
   return (
     <>
       <style>{`
@@ -111,7 +149,41 @@ export default function PricingPage() {
         .fade-up-2 { animation: fadeUp .6s cubic-bezier(.22,1,.36,1) .15s both; }
         .fade-up-3 { animation: fadeUp .6s cubic-bezier(.22,1,.36,1) .25s both; }
         .fade-up-4 { animation: fadeUp .6s cubic-bezier(.22,1,.36,1) .35s both; }
+        @keyframes successIn { from{opacity:0;transform:translateY(-16px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
       `}</style>
+
+      {/* Success toast */}
+      {successPlan && SUB_BADGE[successPlan] && (
+        <div
+          className="fixed top-5 left-1/2 z-[60] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl"
+          style={{
+            transform: "translateX(-50%)",
+            background: SUB_BADGE[successPlan].bg,
+            border: `1.5px solid ${SUB_BADGE[successPlan].border}`,
+            animation: "successIn .35s cubic-bezier(.22,1,.36,1)",
+          }}
+        >
+          <span className="text-xl">🎉</span>
+          <div>
+            <p className="text-sm font-bold" style={{ color: SUB_BADGE[successPlan].color }}>
+              {SUB_BADGE[successPlan].label} obunasi faollashtirildi!
+            </p>
+            <p className="text-xs text-slate-500">Barcha premium imkoniyatlar ochildi</p>
+          </div>
+        </div>
+      )}
+
+      {/* Payment modal */}
+      {selectedPlan && user && (
+        <PaymentModal
+          plan={selectedPlan}
+          userId={user.id}
+          userFirstname={user.firstname}
+          userLastname={user.lastname}
+          onClose={() => setSelectedPlan(null)}
+          onSuccess={handlePaySuccess}
+        />
+      )}
 
       <div className="font-dm min-h-screen bg-[#f8f9fc]">
         {/* ══ NAVBAR ══ */}
@@ -179,6 +251,18 @@ export default function PricingPage() {
                   <span className="text-sm font-medium text-slate-700">
                     {user.firstname}
                   </span>
+                  {subBadge && (
+                    <span
+                      className="text-xs font-bold px-2 py-0.5 rounded-full"
+                      style={{
+                        color: subBadge.color,
+                        background: subBadge.bg,
+                        border: `1px solid ${subBadge.border}`,
+                      }}
+                    >
+                      {subBadge.label}
+                    </span>
+                  )}
                 </button>
               ) : (
                 <>
@@ -198,11 +282,25 @@ export default function PricingPage() {
               )}
             </div>
 
-            {/* Mobile menu button */}
+            {/* Mobile */}
             <div className="md:hidden flex items-center gap-2">
               {user ? (
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <span className="text-lg">{user.avatar_icon}</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <span className="text-lg">{user.avatar_icon}</span>
+                  </div>
+                  {subBadge && (
+                    <span
+                      className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        color: subBadge.color,
+                        background: subBadge.bg,
+                        border: `1px solid ${subBadge.border}`,
+                      }}
+                    >
+                      {subBadge.label}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <Link
@@ -239,75 +337,113 @@ export default function PricingPage() {
         <section className="px-5 py-12 sm:py-16">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {pricingPlans.map((plan, idx) => (
-                <div
-                  key={plan.id}
-                  className={`fade-up-${idx + 2} rounded-3xl transition-all ${
-                    plan.highlight
-                      ? "bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-300 shadow-lg scale-105"
-                      : "bg-white border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-md"
-                  }`}
-                  style={{ animationDelay: `${idx * 0.1}s` }}
-                >
-                  <div className="p-6 sm:p-8">
-                    {plan.highlight && (
-                      <div className="inline-flex items-center gap-2 bg-indigo-600 text-white rounded-full px-3 py-1 mb-4 text-xs font-bold">
-                        ⭐ Tavsiya etilgan
-                      </div>
-                    )}
-                    <h3 className="font-syne text-2xl text-slate-900 mb-2">
-                      {plan.name}
-                    </h3>
-                    <p className="text-slate-500 text-sm mb-6">{plan.description}</p>
+              {pricingPlans.map((plan, idx) => {
+                const planCta = getPlanCta(plan.id);
+                const isActive = planCta?.disabled;
 
-                    {/* Price */}
-                    <div className="mb-6">
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-syne text-4xl sm:text-5xl text-slate-900">
-                          {plan.price === 0 ? "Bepul" : `$${plan.price.toFixed(2)}`}
-                        </span>
-                        {plan.price > 0 && (
-                          <span className="text-slate-500 text-sm">/ {plan.billingPeriod}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <a
-                      href={plan.ctaLink}
-                      className={`block w-full text-center font-bold py-3 px-6 rounded-2xl mb-6 transition-all no-underline ${
-                        plan.highlight
-                          ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:-translate-y-0.5 shadow-lg"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-900 hover:-translate-y-0.5"
-                      }`}
-                    >
-                      {plan.cta}
-                    </a>
-
-                    {/* Features */}
-                    <div className="space-y-3 border-t border-slate-200 pt-6">
-                      {plan.features.map((feature, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <span
-                            className={`text-lg leading-none pt-0.5 flex-shrink-0 ${
-                              feature.included ? "text-green-500" : "text-slate-300"
-                            }`}
-                          >
-                            {feature.included ? "✓" : "✗"}
-                          </span>
-                          <span
-                            className={`text-sm ${
-                              feature.included ? "text-slate-700" : "text-slate-400"
-                            }`}
-                          >
-                            {feature.name}
-                          </span>
+                return (
+                  <div
+                    key={plan.id}
+                    className={`fade-up-${idx + 2} rounded-3xl transition-all ${
+                      plan.highlight
+                        ? "bg-gradient-to-br from-indigo-50 to-blue-50 border-2 border-indigo-300 shadow-lg scale-105"
+                        : "bg-white border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-md"
+                    } ${isActive ? "ring-2 ring-offset-2" : ""}`}
+                    style={{
+                      animationDelay: `${idx * 0.1}s`,
+                      ...(isActive ? { ringColor: plan.id === "plus" ? "#4f46e5" : "#7c3aed" } : {}),
+                    }}
+                  >
+                    <div className="p-6 sm:p-8">
+                      {plan.highlight && (
+                        <div className="inline-flex items-center gap-2 bg-indigo-600 text-white rounded-full px-3 py-1 mb-4 text-xs font-bold">
+                          ⭐ Tavsiya etilgan
                         </div>
-                      ))}
+                      )}
+                      {isActive && (
+                        <div
+                          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 mb-4 text-xs font-bold"
+                          style={
+                            plan.id === "plus"
+                              ? { background: "#eef2ff", color: "#4f46e5", border: "1px solid #c7d2fe" }
+                              : { background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe" }
+                          }
+                        >
+                          ✓ Joriy obunangiz
+                        </div>
+                      )}
+                      <h3 className="font-syne text-2xl text-slate-900 mb-2">
+                        {plan.name}
+                      </h3>
+                      <p className="text-slate-500 text-sm mb-6">{plan.description}</p>
+
+                      <div className="mb-6">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-syne text-4xl sm:text-5xl text-slate-900">
+                            {plan.price === 0 ? "Bepul" : `$${plan.price.toFixed(2)}`}
+                          </span>
+                          {plan.price > 0 && (
+                            <span className="text-slate-500 text-sm">/ {plan.billingPeriod}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* CTA */}
+                      {plan.id === "free" ? (
+                        <Link
+                          href="/test"
+                          className={`block w-full text-center font-bold py-3 px-6 rounded-2xl mb-6 transition-all no-underline bg-slate-100 hover:bg-slate-200 text-slate-900 hover:-translate-y-0.5`}
+                        >
+                          {plan.cta}
+                        </Link>
+                      ) : planCta?.disabled ? (
+                        <div
+                          className="w-full text-center font-bold py-3 px-6 rounded-2xl mb-6 text-sm"
+                          style={
+                            plan.id === "plus"
+                              ? { background: "#eef2ff", color: "#4f46e5" }
+                              : { background: "#f5f3ff", color: "#7c3aed" }
+                          }
+                        >
+                          {planCta.label}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handlePlanClick(plan.id as "plus" | "life")}
+                          className={`w-full text-center font-bold py-3 px-6 rounded-2xl mb-6 transition-all cursor-pointer border-none text-sm ${
+                            plan.highlight
+                              ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:-translate-y-0.5 shadow-lg"
+                              : "bg-slate-800 hover:bg-slate-900 text-white hover:-translate-y-0.5"
+                          }`}
+                        >
+                          {planCta?.label ?? plan.cta}
+                        </button>
+                      )}
+
+                      <div className="space-y-3 border-t border-slate-200 pt-6">
+                        {plan.features.map((feature, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <span
+                              className={`text-lg leading-none pt-0.5 flex-shrink-0 ${
+                                feature.included ? "text-green-500" : "text-slate-300"
+                              }`}
+                            >
+                              {feature.included ? "✓" : "✗"}
+                            </span>
+                            <span
+                              className={`text-sm ${
+                                feature.included ? "text-slate-700" : "text-slate-400"
+                              }`}
+                            >
+                              {feature.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -340,6 +476,17 @@ export default function PricingPage() {
                         className="text-center px-4 sm:px-6 py-4 font-semibold text-slate-900 whitespace-nowrap"
                       >
                         {plan.name}
+                        {currentSub === plan.id && (
+                          <span
+                            className="ml-1.5 text-xs font-bold px-1.5 py-0.5 rounded-full"
+                            style={SUB_BADGE[plan.id] ? {
+                              color: SUB_BADGE[plan.id].color,
+                              background: SUB_BADGE[plan.id].bg,
+                            } : {}}
+                          >
+                            ✓
+                          </span>
+                        )}
                       </th>
                     ))}
                   </tr>
@@ -401,7 +548,7 @@ export default function PricingPage() {
                   O'zbekiston haydovchilik imtihoniga tayyorlaning va yuksak natija oling.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <Link 
+                  <Link
                     href="/test"
                     className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-white hover:-translate-y-0.5 text-indigo-700 font-bold text-sm sm:text-base px-7 py-3.5 rounded-2xl transition-all shadow-lg no-underline"
                   >
@@ -411,7 +558,7 @@ export default function PricingPage() {
                     Testni boshlash
                   </Link>
                   {!user && (
-                    <Link 
+                    <Link
                       href="/auth"
                       className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 hover:-translate-y-0.5 border border-white/25 text-white font-semibold text-sm sm:text-base px-7 py-3.5 rounded-2xl transition-all no-underline"
                     >
@@ -453,7 +600,7 @@ export default function PricingPage() {
                 { href: "/pricing", l: "Obuna" },
                 { href: "/profile", l: "Profil" },
               ].map((x) => (
-                <Link 
+                <Link
                   key={x.href}
                   href={x.href}
                   className="text-xs text-slate-400 hover:text-indigo-600 transition-colors no-underline"
