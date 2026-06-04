@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import WeeklyLeaderboard from "@/components/profile/WeeklyLeaderboard";
 import ProfileHero from "@/components/profile/ProfileHero";
+import Link from "next/link";
+import Image from "next/image";
 
 // ---------- Types ----------
 interface UserData {
@@ -318,7 +320,7 @@ function EmptyStats() {
       <p className="text-xs text-slate-400 mb-4">
         Birinchi testni topshiring va natijalar shu yerda ko'rinadi
       </p>
-      <a
+      <Link
         href="/"
         className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm shadow-blue-200"
       >
@@ -333,7 +335,90 @@ function EmptyStats() {
           <polygon points="5 3 19 12 5 21 5 3" />
         </svg>
         Testni boshlash
-      </a>
+      </Link>
+    </div>
+  );
+}
+
+// ---------- Locked section wrapper ----------
+function LockedSection({
+  locked,
+  children,
+}: {
+  locked: boolean;
+  children: React.ReactNode;
+}) {
+  if (!locked) return <>{children}</>;
+  return (
+    <div style={{ position: "relative" }}>
+      <div style={{ filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }}>
+        {children}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "rgba(248,250,252,0.55)",
+          backdropFilter: "blur(2px)",
+          borderRadius: 20,
+          zIndex: 5,
+          gap: 12,
+          padding: 24,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 8px 24px rgba(99,102,241,.35)",
+          }}
+        >
+          <svg width="22" height="22" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+        </div>
+        <div>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }}>
+            Bu bo&apos;lim Plus uchun
+          </p>
+          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px", lineHeight: 1.5 }}>
+            Plus obunasiga o&apos;ting va biz tayyorlagan barcha imkoniyatlardan foydalaning
+          </p>
+        </div>
+        <a
+          href="/pricing"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
+            color: "white",
+            fontWeight: 700,
+            fontSize: 13,
+            padding: "10px 22px",
+            borderRadius: 12,
+            textDecoration: "none",
+            boxShadow: "0 4px 14px rgba(99,102,241,.4)",
+            transition: "opacity .15s",
+          }}
+        >
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          Plus obunasini olish
+        </a>
+      </div>
     </div>
   );
 }
@@ -512,6 +597,8 @@ export default function ProfilePage() {
   const rankObj = getRank(stats.xp);
   const nextRank = getNextRank(stats.xp);
   const hasStats = results.length > 0;
+  const isPaidUser =
+    user.subscription === "plus" || user.subscription === "life";
 
   const accuracy = hasStats
     ? Math.round(
@@ -535,7 +622,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div
                 style={{
                   width: 30,
@@ -546,9 +633,11 @@ export default function ProfilePage() {
                   overflow: "hidden",
                 }}
               >
-                <img
+                <Image
                   src="/logo.png"
                   alt="Brotest Logo"
+                  width={30}
+                  height={30}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -557,14 +646,14 @@ export default function ProfilePage() {
                 />
               </div>
             <span className="font-bold text-slate-800 text-sm">Brotest</span>
-          </a>
+          </Link>
           <div className="flex items-center gap-2">
-            <a
+            <Link 
               href="/test"
               className="text-xs text-slate-500 hover:text-blue-600 transition px-3 py-1.5 rounded-lg hover:bg-blue-50"
             >
               Testga o'tish
-            </a>
+            </Link>
             <button
               onClick={handleLogout}
               disabled={loggingOut}
@@ -931,6 +1020,7 @@ export default function ProfilePage() {
             })()}
 
             {/* ── ACHIEVEMENTS CARD ── */}
+            <LockedSection locked={!isPaidUser}>
             {(() => {
               const earned = achievements.map((a) => a.type);
               const isPro = PRO_ACHIEVEMENTS.every((t) => earned.includes(t));
@@ -1130,13 +1220,14 @@ export default function ProfilePage() {
                         }}
                       >
                         Barcha yutuqlarni to'plab <strong>PRO</strong> avatarini
-                        oching — profilingiz boshqalardan ajralib turadi!
+                        oching — profilingiz boshqalardan ajralib turadi. Bu unvonni sotib olish imkonsiz!
                       </p>
                     </div>
                   )}
                 </div>
               );
             })()}
+            </LockedSection>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Aniqlik */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
@@ -1197,6 +1288,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            <LockedSection locked={!isPaidUser}>
             <div
               style={{
                 background: "white",
@@ -2143,9 +2235,11 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+            </LockedSection>
           </>
         )}
 
+        <LockedSection locked={!isPaidUser}>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-50">
             <h2 className="font-semibold text-slate-800 text-sm">
@@ -2213,8 +2307,11 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+        </LockedSection>
 
+        <LockedSection locked={!isPaidUser}>
         <WeeklyLeaderboard currentUserId={user.id} />
+        </LockedSection>
       </main>
     </div>
   );

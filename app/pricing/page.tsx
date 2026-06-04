@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PaymentModal from "@/components/PaymentModal";
+import Image from "next/image";
 
 interface UserData {
   id: string;
@@ -210,9 +211,11 @@ export default function PricingPage() {
                   overflow: "hidden",
                 }}
               >
-                <img
+                <Image
                   src="/logo.png"
                   alt="Brotest Logo"
+                  width={32}
+                  height={32}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -317,20 +320,14 @@ export default function PricingPage() {
         {/* ══ HERO SECTION ══ */}
         <section className="px-5 pt-16 sm:pt-20 pb-12">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="fade-up-1 inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-full px-4 py-2 mb-6">
-              <span className="text-indigo-600 text-sm font-bold">💎 Tarif rejasini tanlang</span>
-            </div>
             <h1
               className="font-syne text-slate-900 tracking-tight mb-4"
               style={{ fontSize: "clamp(32px,6vw,56px)" }}
             >
-              Hamma uchun musbat
+              Obuna bilan samaradorlikni 
               <br />
-              <span className="text-indigo-600">narx taklifi</span>
+              <span className="text-indigo-600">oshiring</span>
             </h1>
-            <p className="text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-              Botlarning imtihon platforma uchun tarif rejasi. Bepuldan premium-gacha barcha xususiyatlarni o'rganib chiqing.
-            </p>
           </div>
         </section>
 

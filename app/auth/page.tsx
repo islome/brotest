@@ -76,35 +76,45 @@ export default function AuthPage() {
   }
 
   async function checkBlocked(): Promise<boolean> {
-    const res = await fetch("/api/auth-attempts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "check",
-        email: `${username}@autotest.uz`,
-      }),
-    });
-    const d = await res.json();
-    if (d.isBlocked) {
-      startBlockTimer();
-      setAttempts(d.attempts);
+    try {
+      const res = await fetch("/api/auth-attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "check",
+          email: `${username}@autotest.uz`,
+        }),
+      });
+      if (!res.ok) return false;
+      const d = await res.json();
+      if (d.isBlocked) {
+        startBlockTimer();
+        setAttempts(d.attempts);
+      }
+      return d.isBlocked ?? false;
+    } catch {
+      return false;
     }
-    return d.isBlocked;
   }
 
   async function recordFail() {
-    const res = await fetch("/api/auth-attempts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "record",
-        email: `${username}@autotest.uz`,
-      }),
-    });
-    const d = await res.json();
-    setAttempts(d.attempts);
-    if (d.isBlocked) startBlockTimer();
-    return d.attempts as number;
+    try {
+      const res = await fetch("/api/auth-attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "record",
+          email: `${username}@autotest.uz`,
+        }),
+      });
+      if (!res.ok) return 0;
+      const d = await res.json();
+      setAttempts(d.attempts);
+      if (d.isBlocked) startBlockTimer();
+      return d.attempts as number;
+    } catch {
+      return 0;
+    }
   }
 
   async function clearAttempts() {

@@ -576,9 +576,13 @@ export default function MainPage() {
               <div key={ri} className="flex items-center gap-10 px-5">
                 {[
                   "Yo'l harakati qoidalari",
+                  "Yo'l belgilari",
                   "Real imtihon savollari",
                   "Tezkor natijalar",
                   "Statistika va tahlil",
+                  "Level tizimi",
+                  "Leaderboard",
+                  "XP tizimi",
                   "Daraja tizimi",
                   "Bepul foydalanish",
                   "Rasmli savollar",
