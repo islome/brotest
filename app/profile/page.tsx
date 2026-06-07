@@ -351,7 +351,13 @@ function LockedSection({
   if (!locked) return <>{children}</>;
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ filter: "blur(6px)", pointerEvents: "none", userSelect: "none" }}>
+      <div
+        style={{
+          filter: "blur(6px)",
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      >
         {children}
       </div>
       <div
@@ -383,17 +389,39 @@ function LockedSection({
             boxShadow: "0 8px 24px rgba(99,102,241,.35)",
           }}
         >
-          <svg width="22" height="22" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
+          <svg
+            width="22"
+            height="22"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+          >
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
         </div>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: "0 0 6px" }}>
+          <p
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#0f172a",
+              margin: "0 0 6px",
+            }}
+          >
             Bu bo&apos;lim Plus uchun
           </p>
-          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px", lineHeight: 1.5 }}>
-            Plus obunasiga o&apos;ting va biz tayyorlagan barcha imkoniyatlardan foydalaning
+          <p
+            style={{
+              fontSize: 13,
+              color: "#64748b",
+              margin: "0 0 16px",
+              lineHeight: 1.5,
+            }}
+          >
+            Plus obunasiga o&apos;ting va biz tayyorlagan barcha imkoniyatlardan
+            foydalaning
           </p>
         </div>
         <a
@@ -413,7 +441,14 @@ function LockedSection({
             transition: "opacity .15s",
           }}
         >
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+          <svg
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+          >
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
           </svg>
           Plus obunasini olish
@@ -440,7 +475,9 @@ export default function ProfilePage() {
     wrongs: WrongAnswer[];
   } | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [hoveredRank, setHoveredRank] = useState<typeof RANKS[0] | null>(null);
+  const [hoveredRank, setHoveredRank] = useState<(typeof RANKS)[0] | null>(
+    null,
+  );
 
   interface WrongAnswer {
     id: number;
@@ -503,7 +540,9 @@ export default function ProfilePage() {
 
       const { data: userData, error: userErr } = await supabase
         .from("users")
-        .select("id, firstname, lastname, username, role, avatar_icon, created_at, subscription")
+        .select(
+          "id, firstname, lastname, username, role, avatar_icon, created_at, subscription",
+        )
         .eq("id", authUser.id)
         .single();
 
@@ -624,31 +663,31 @@ export default function ProfilePage() {
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div
+              style={{
+                width: 30,
+                height: 30,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+              }}
+            >
+              <Image
+                src="/logo.png"
+                alt="Brotest Logo"
+                width={30}
+                height={30}
                 style={{
-                  width: 30,
-                  height: 30,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
                 }}
-              >
-                <Image
-                  src="/logo.png"
-                  alt="Brotest Logo"
-                  width={30}
-                  height={30}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
+              />
+            </div>
             <span className="font-bold text-slate-800 text-sm">Brotest</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link 
+            <Link
               href="/test"
               className="text-xs text-slate-500 hover:text-blue-600 transition px-3 py-1.5 rounded-lg hover:bg-blue-50"
             >
@@ -752,6 +791,286 @@ export default function ProfilePage() {
                 }
               />
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Aniqlik */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
+                <div className="relative shrink-0">
+                  <CircleProgress percent={accuracy} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-slate-800">
+                      {accuracy}%
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">
+                    Aniqlik
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Barcha javoblar bo'yicha
+                  </p>
+                  <div className="flex gap-3 mt-2.5">
+                    <span className="flex items-center gap-1 text-xs text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+                      {stats.total_correct} to'g'ri
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />
+                      {stats.total_wrong} xato
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* O'tish darajasi */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
+                <div className="relative shrink-0">
+                  <CircleProgress percent={passRate} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-slate-800">
+                      {passRate}%
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">
+                    O'tish darajasi
+                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">70%+ = o'tdi</p>
+                  <div className="flex gap-3 mt-2.5">
+                    <span className="flex items-center gap-1 text-xs text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
+                      {stats.passed_tests} o'tdi
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-slate-300 inline-block" />
+                      {stats.total_tests - stats.passed_tests} o'tmadi
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── ACHIEVEMENTS CARD ── */}
+            <LockedSection locked={!isPaidUser}>
+              {(() => {
+                const earned = achievements.map((a) => a.type);
+                const isPro = PRO_ACHIEVEMENTS.every((t) => earned.includes(t));
+
+                return (
+                  <div
+                    style={{
+                      background: "white",
+                      borderRadius: 20,
+                      border: isPro ? "2px solid #f59e0b" : "1px solid #e2e8f0",
+                      boxShadow: isPro
+                        ? "0 4px 24px rgba(245,158,11,.15)"
+                        : "0 2px 8px rgba(0,0,0,.04)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Header */}
+                    <div
+                      style={{
+                        padding: "18px 20px 14px",
+                        borderBottom: "1px solid #f1f5f9",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            background: isPro ? "#fffbeb" : "#f8fafc",
+                            borderRadius: 10,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 16,
+                          }}
+                        >
+                          {isPro ? "✨" : "🎖️"}
+                        </div>
+                        <div>
+                          <h2
+                            style={{
+                              fontSize: 15,
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              margin: 0,
+                            }}
+                          >
+                            Yutuqlar
+                          </h2>
+                          <p
+                            style={{
+                              fontSize: 12,
+                              color: "#94a3b8",
+                              margin: 0,
+                            }}
+                          >
+                            {earned.length} / {PRO_ACHIEVEMENTS.length} olindi
+                          </p>
+                        </div>
+                      </div>
+                      {isPro && (
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 800,
+                            color: "#b45309",
+                            background:
+                              "linear-gradient(135deg,#fef3c7,#fde68a)",
+                            border: "1px solid #fcd34d",
+                            padding: "4px 12px",
+                            borderRadius: 999,
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          ✨ PRO
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Progress bar */}
+                    <div style={{ padding: "14px 20px 0" }}>
+                      <div
+                        style={{
+                          height: 6,
+                          background: "#f1f5f9",
+                          borderRadius: 999,
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: "100%",
+                            borderRadius: 999,
+                            background: isPro
+                              ? "linear-gradient(90deg,#f59e0b,#fbbf24)"
+                              : "linear-gradient(90deg,#6366f1,#8b5cf6)",
+                            width: `${(earned.length / PRO_ACHIEVEMENTS.length) * 100}%`,
+                            transition: "width 1s cubic-bezier(.22,1,.36,1)",
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Badges grid */}
+                    <div
+                      style={{
+                        padding: "16px 20px 20px",
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fill, minmax(140px, 1fr))",
+                        gap: 10,
+                      }}
+                    >
+                      {PRO_ACHIEVEMENTS.map((type) => {
+                        const meta = ACHIEVEMENT_META[type];
+                        const isEarned = earned.includes(type);
+                        const ach = achievements.find((a) => a.type === type);
+
+                        return (
+                          <div
+                            key={type}
+                            style={{
+                              background: isEarned ? meta.bg : "#f8fafc",
+                              border: `1px solid ${isEarned ? meta.border : "#e2e8f0"}`,
+                              borderRadius: 14,
+                              padding: "14px 12px",
+                              textAlign: "center",
+                              opacity: isEarned ? 1 : 0.45,
+                              transition: "all .2s",
+                              filter: isEarned ? "none" : "grayscale(1)",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 28,
+                                display: "block",
+                                marginBottom: 6,
+                              }}
+                            >
+                              {meta.icon}
+                            </span>
+                            <p
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: isEarned ? meta.color : "#94a3b8",
+                                margin: "0 0 2px",
+                                lineHeight: 1.3,
+                              }}
+                            >
+                              {meta.label}
+                            </p>
+                            <p
+                              style={{
+                                fontSize: 10,
+                                color: isEarned ? meta.color : "#cbd5e1",
+                                margin: 0,
+                                opacity: 0.8,
+                              }}
+                            >
+                              {isEarned && ach
+                                ? new Date(ach.earned_at).toLocaleDateString(
+                                    "uz-UZ",
+                                    {
+                                      day: "2-digit",
+                                      month: "short",
+                                    },
+                                  )
+                                : meta.desc}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Pro locked message */}
+                    {!isPro && (
+                      <div
+                        style={{
+                          margin: "0 20px 20px",
+                          padding: "12px 16px",
+                          background: "#fffbeb",
+                          border: "1px solid #fde68a",
+                          borderRadius: 12,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <span style={{ fontSize: 18, flexShrink: 0 }}>✨</span>
+                        <p
+                          style={{
+                            fontSize: 12,
+                            color: "#92400e",
+                            margin: 0,
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          Barcha yutuqlarni to'plab <strong>PRO</strong>{" "}
+                          avatarini oching — profilingiz boshqalardan ajralib
+                          turadi. Bu unvonni sotib olish imkonsiz!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </LockedSection>
             {/* ── STREAK CARD ── */}
             {(() => {
               const today = new Date().toISOString().split("T")[0];
@@ -1019,577 +1338,310 @@ export default function ProfilePage() {
               );
             })()}
 
-            {/* ── ACHIEVEMENTS CARD ── */}
             <LockedSection locked={!isPaidUser}>
-            {(() => {
-              const earned = achievements.map((a) => a.type);
-              const isPro = PRO_ACHIEVEMENTS.every((t) => earned.includes(t));
-
-              return (
-                <div
-                  style={{
-                    background: "white",
-                    borderRadius: 20,
-                    border: isPro ? "2px solid #f59e0b" : "1px solid #e2e8f0",
-                    boxShadow: isPro
-                      ? "0 4px 24px rgba(245,158,11,.15)"
-                      : "0 2px 8px rgba(0,0,0,.04)",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* Header */}
-                  <div
-                    style={{
-                      padding: "18px 20px 14px",
-                      borderBottom: "1px solid #f1f5f9",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 10 }}
-                    >
-                      <div
-                        style={{
-                          width: 32,
-                          height: 32,
-                          background: isPro ? "#fffbeb" : "#f8fafc",
-                          borderRadius: 10,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 16,
-                        }}
-                      >
-                        {isPro ? "✨" : "🎖️"}
-                      </div>
-                      <div>
-                        <h2
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 700,
-                            color: "#0f172a",
-                            margin: 0,
-                          }}
-                        >
-                          Yutuqlar
-                        </h2>
-                        <p
-                          style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}
-                        >
-                          {earned.length} / {PRO_ACHIEVEMENTS.length} olindi
-                        </p>
-                      </div>
-                    </div>
-                    {isPro && (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          color: "#b45309",
-                          background: "linear-gradient(135deg,#fef3c7,#fde68a)",
-                          border: "1px solid #fcd34d",
-                          padding: "4px 12px",
-                          borderRadius: 999,
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        ✨ PRO
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Progress bar */}
-                  <div style={{ padding: "14px 20px 0" }}>
-                    <div
-                      style={{
-                        height: 6,
-                        background: "#f1f5f9",
-                        borderRadius: 999,
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: "100%",
-                          borderRadius: 999,
-                          background: isPro
-                            ? "linear-gradient(90deg,#f59e0b,#fbbf24)"
-                            : "linear-gradient(90deg,#6366f1,#8b5cf6)",
-                          width: `${(earned.length / PRO_ACHIEVEMENTS.length) * 100}%`,
-                          transition: "width 1s cubic-bezier(.22,1,.36,1)",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Badges grid */}
-                  <div
-                    style={{
-                      padding: "16px 20px 20px",
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fill, minmax(140px, 1fr))",
-                      gap: 10,
-                    }}
-                  >
-                    {PRO_ACHIEVEMENTS.map((type) => {
-                      const meta = ACHIEVEMENT_META[type];
-                      const isEarned = earned.includes(type);
-                      const ach = achievements.find((a) => a.type === type);
-
-                      return (
-                        <div
-                          key={type}
-                          style={{
-                            background: isEarned ? meta.bg : "#f8fafc",
-                            border: `1px solid ${isEarned ? meta.border : "#e2e8f0"}`,
-                            borderRadius: 14,
-                            padding: "14px 12px",
-                            textAlign: "center",
-                            opacity: isEarned ? 1 : 0.45,
-                            transition: "all .2s",
-                            filter: isEarned ? "none" : "grayscale(1)",
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 28,
-                              display: "block",
-                              marginBottom: 6,
-                            }}
-                          >
-                            {meta.icon}
-                          </span>
-                          <p
-                            style={{
-                              fontSize: 12,
-                              fontWeight: 700,
-                              color: isEarned ? meta.color : "#94a3b8",
-                              margin: "0 0 2px",
-                              lineHeight: 1.3,
-                            }}
-                          >
-                            {meta.label}
-                          </p>
-                          <p
-                            style={{
-                              fontSize: 10,
-                              color: isEarned ? meta.color : "#cbd5e1",
-                              margin: 0,
-                              opacity: 0.8,
-                            }}
-                          >
-                            {isEarned && ach
-                              ? new Date(ach.earned_at).toLocaleDateString(
-                                  "uz-UZ",
-                                  {
-                                    day: "2-digit",
-                                    month: "short",
-                                  },
-                                )
-                              : meta.desc}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Pro locked message */}
-                  {!isPro && (
-                    <div
-                      style={{
-                        margin: "0 20px 20px",
-                        padding: "12px 16px",
-                        background: "#fffbeb",
-                        border: "1px solid #fde68a",
-                        borderRadius: 12,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                      }}
-                    >
-                      <span style={{ fontSize: 18, flexShrink: 0 }}>✨</span>
-                      <p
-                        style={{
-                          fontSize: 12,
-                          color: "#92400e",
-                          margin: 0,
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        Barcha yutuqlarni to'plab <strong>PRO</strong> avatarini
-                        oching — profilingiz boshqalardan ajralib turadi. Bu unvonni sotib olish imkonsiz!
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-            </LockedSection>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Aniqlik */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
-                <div className="relative shrink-0">
-                  <CircleProgress percent={accuracy} />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-slate-800">
-                      {accuracy}%
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">
-                    Aniqlik
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Barcha javoblar bo'yicha
-                  </p>
-                  <div className="flex gap-3 mt-2.5">
-                    <span className="flex items-center gap-1 text-xs text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
-                      {stats.total_correct} to'g'ri
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-red-400 inline-block" />
-                      {stats.total_wrong} xato
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* O'tish darajasi */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-5">
-                <div className="relative shrink-0">
-                  <CircleProgress percent={passRate} />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-bold text-slate-800">
-                      {passRate}%
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">
-                    O'tish darajasi
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">70%+ = o'tdi</p>
-                  <div className="flex gap-3 mt-2.5">
-                    <span className="flex items-center gap-1 text-xs text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-blue-400 inline-block" />
-                      {stats.passed_tests} o'tdi
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-slate-300 inline-block" />
-                      {stats.total_tests - stats.passed_tests} o'tmadi
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <LockedSection locked={!isPaidUser}>
-            <div
-              style={{
-                background: "white",
-                borderRadius: 20,
-                border: "1px solid #e2e8f0",
-                boxShadow: "0 2px 8px rgba(0,0,0,.04)",
-                overflow: "hidden",
-              }}
-            >
               <div
                 style={{
-                  padding: "18px 20px 14px",
-                  borderBottom: "1px solid #f1f5f9",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  background: "white",
+                  borderRadius: 20,
+                  border: "1px solid #e2e8f0",
+                  boxShadow: "0 2px 8px rgba(0,0,0,.04)",
+                  overflow: "hidden",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      background: "#eef2ff",
-                      borderRadius: 10,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      fill="none"
-                      stroke="#4f46e5"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h2
-                      className="fs"
-                      style={{
-                        fontSize: 16,
-                        color: "#0f172a",
-                        margin: 0,
-                        letterSpacing: "-0.01em",
-                      }}
-                    >
-                      So'nggi testlar
-                    </h2>
-                    <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
-                      Xatolar ustiga bosib ko'ring
-                    </p>
-                  </div>
-                </div>
-                <span
+                <div
                   style={{
-                    fontSize: 12,
-                    color: "#94a3b8",
-                    background: "#f8f9fc",
-                    padding: "4px 10px",
-                    borderRadius: 8,
-                    border: "1px solid #f1f5f9",
+                    padding: "18px 20px 14px",
+                    borderBottom: "1px solid #f1f5f9",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  {results.length} ta
-                </span>
-              </div>
-
-              {results.length === 0 ? (
-                <div style={{ padding: "40px 24px", textAlign: "center" }}>
-                  <p style={{ fontSize: 14, color: "#94a3b8" }}>
-                    Hali test topshirilmagan
-                  </p>
-                  <a
-                    href="/test"
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
+                  >
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        background: "#eef2ff",
+                        borderRadius: 10,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="#4f46e5"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2
+                        className="fs"
+                        style={{
+                          fontSize: 16,
+                          color: "#0f172a",
+                          margin: 0,
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        So'nggi testlar
+                      </h2>
+                      <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                        Xatolar ustiga bosib ko'ring
+                      </p>
+                    </div>
+                  </div>
+                  <span
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                      marginTop: 12,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "#4f46e5",
-                      textDecoration: "none",
-                      background: "#eef2ff",
-                      padding: "8px 16px",
-                      borderRadius: 10,
+                      fontSize: 12,
+                      color: "#94a3b8",
+                      background: "#f8f9fc",
+                      padding: "4px 10px",
+                      borderRadius: 8,
+                      border: "1px solid #f1f5f9",
                     }}
                   >
-                    Testga o'tish →
-                  </a>
+                    {results.length} ta
+                  </span>
                 </div>
-              ) : (
-                <div>
-                  {results.map((r, i) => {
-                    const sc =
-                      r.score_percent >= 80
-                        ? { bg: "#f0fdf4", text: "#16a34a" }
-                        : r.score_percent >= 60
-                          ? { bg: "#eef2ff", text: "#4f46e5" }
-                          : r.score_percent >= 40
-                            ? { bg: "#fefce8", text: "#ca8a04" }
-                            : { bg: "#fff1f2", text: "#dc2626" };
 
-                    return (
-                      <button
-                        key={r.id}
-                        onClick={() => openModal(r)}
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 14,
-                          padding: "14px 20px",
-                          background: "transparent",
-                          border: "none",
-                          borderBottom:
-                            i < results.length - 1
-                              ? "1px solid #f8f9fc"
-                              : "none",
-                          cursor: "pointer",
-                          textAlign: "left",
-                          transition: "background .15s",
-                        }}
-                        onMouseEnter={(e) =>
-                          ((e.currentTarget as HTMLElement).style.background =
-                            "#f8f9fc")
-                        }
-                        onMouseLeave={(e) =>
-                          ((e.currentTarget as HTMLElement).style.background =
-                            "transparent")
-                        }
-                      >
-                        {/* Score */}
-                        <div
+                {results.length === 0 ? (
+                  <div style={{ padding: "40px 24px", textAlign: "center" }}>
+                    <p style={{ fontSize: 14, color: "#94a3b8" }}>
+                      Hali test topshirilmagan
+                    </p>
+                    <a
+                      href="/test"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        marginTop: 12,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#4f46e5",
+                        textDecoration: "none",
+                        background: "#eef2ff",
+                        padding: "8px 16px",
+                        borderRadius: 10,
+                      }}
+                    >
+                      Testga o'tish →
+                    </a>
+                  </div>
+                ) : (
+                  <div>
+                    {results.map((r, i) => {
+                      const sc =
+                        r.score_percent >= 80
+                          ? { bg: "#f0fdf4", text: "#16a34a" }
+                          : r.score_percent >= 60
+                            ? { bg: "#eef2ff", text: "#4f46e5" }
+                            : r.score_percent >= 40
+                              ? { bg: "#fefce8", text: "#ca8a04" }
+                              : { bg: "#fff1f2", text: "#dc2626" };
+
+                      return (
+                        <button
+                          key={r.id}
+                          onClick={() => openModal(r)}
                           style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 14,
-                            background: sc.bg,
+                            width: "100%",
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
+                            gap: 14,
+                            padding: "14px 20px",
+                            background: "transparent",
+                            border: "none",
+                            borderBottom:
+                              i < results.length - 1
+                                ? "1px solid #f8f9fc"
+                                : "none",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            transition: "background .15s",
                           }}
+                          onMouseEnter={(e) =>
+                            ((e.currentTarget as HTMLElement).style.background =
+                              "#f8f9fc")
+                          }
+                          onMouseLeave={(e) =>
+                            ((e.currentTarget as HTMLElement).style.background =
+                              "transparent")
+                          }
                         >
-                          <span
-                            className="fs"
-                            style={{
-                              fontSize: 13,
-                              color: sc.text,
-                              lineHeight: 1,
-                            }}
-                          >
-                            {r.score_percent}%
-                          </span>
-                        </div>
-
-                        {/* Info */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {/* Score */}
                           <div
                             style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: 14,
+                              background: sc.bg,
                               display: "flex",
                               alignItems: "center",
-                              gap: 7,
-                              marginBottom: 6,
+                              justifyContent: "center",
+                              flexShrink: 0,
                             }}
                           >
                             <span
+                              className="fs"
                               style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                padding: "2px 8px",
-                                borderRadius: 6,
-                                background: r.passed ? "#dcfce7" : "#fee2e2",
-                                color: r.passed ? "#16a34a" : "#dc2626",
+                                fontSize: 13,
+                                color: sc.text,
+                                lineHeight: 1,
                               }}
                             >
-                              {r.passed ? "O'tdi ✓" : "O'tmadi"}
-                            </span>
-                            <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                              {fmtDate(r.taken_at)}
+                              {r.score_percent}%
                             </span>
                           </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 8,
-                            }}
-                          >
+
+                          {/* Info */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                               style={{
-                                flex: 1,
-                                height: 5,
-                                background: "#f1f5f9",
-                                borderRadius: 999,
-                                overflow: "hidden",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 7,
+                                marginBottom: 6,
                               }}
                             >
-                              <div
-                                style={{
-                                  height: "100%",
-                                  background: "#4f46e5",
-                                  width: `${(r.correct / r.total) * 100}%`,
-                                  borderRadius: 999,
-                                }}
-                              />
-                            </div>
-                            <span
-                              style={{
-                                fontSize: 11,
-                                color: "#94a3b8",
-                                flexShrink: 0,
-                              }}
-                            >
-                              {r.correct}/{r.total}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Right */}
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                              justifyContent: "flex-end",
-                              marginBottom: 3,
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: "#22c55e",
-                              }}
-                            >
-                              +{r.correct}
-                            </span>
-                            <span style={{ fontSize: 11, color: "#e2e8f0" }}>
-                              /
-                            </span>
-                            {r.wrong > 0 ? (
                               <span
                                 style={{
                                   fontSize: 11,
                                   fontWeight: 700,
-                                  color: "white",
-                                  background: "#ef4444",
-                                  padding: "2px 7px",
+                                  padding: "2px 8px",
                                   borderRadius: 6,
+                                  background: r.passed ? "#dcfce7" : "#fee2e2",
+                                  color: r.passed ? "#16a34a" : "#dc2626",
                                 }}
                               >
-                                -{r.wrong} xato
+                                {r.passed ? "O'tdi ✓" : "O'tmadi"}
                               </span>
-                            ) : (
+                              <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                                {fmtDate(r.taken_at)}
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  flex: 1,
+                                  height: 5,
+                                  background: "#f1f5f9",
+                                  borderRadius: 999,
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    height: "100%",
+                                    background: "#4f46e5",
+                                    width: `${(r.correct / r.total) * 100}%`,
+                                    borderRadius: 999,
+                                  }}
+                                />
+                              </div>
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  color: "#94a3b8",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {r.correct}/{r.total}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Right */}
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                                justifyContent: "flex-end",
+                                marginBottom: 3,
+                              }}
+                            >
                               <span
                                 style={{
                                   fontSize: 12,
-                                  color: "#22c55e",
                                   fontWeight: 600,
+                                  color: "#22c55e",
                                 }}
                               >
-                                0 xato ✓
+                                +{r.correct}
                               </span>
-                            )}
+                              <span style={{ fontSize: 11, color: "#e2e8f0" }}>
+                                /
+                              </span>
+                              {r.wrong > 0 ? (
+                                <span
+                                  style={{
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: "white",
+                                    background: "#ef4444",
+                                    padding: "2px 7px",
+                                    borderRadius: 6,
+                                  }}
+                                >
+                                  -{r.wrong} xato
+                                </span>
+                              ) : (
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    color: "#22c55e",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  0 xato ✓
+                                </span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                              {fmtTime(r.duration_sec)}
+                            </span>
                           </div>
-                          <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                            {fmtTime(r.duration_sec)}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {modal && (
-                <div
-                  onClick={(e) => {
-                    if (e.target === e.currentTarget) setModal(null);
-                  }}
-                  style={{
-                    position: "fixed",
-                    inset: 0,
-                    background: "rgba(15,23,42,.55)",
-                    backdropFilter: "blur(6px)",
-                    zIndex: 50,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: 16,
-                  }}
-                >
-                  <style>{`
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {modal && (
+                  <div
+                    onClick={(e) => {
+                      if (e.target === e.currentTarget) setModal(null);
+                    }}
+                    style={{
+                      position: "fixed",
+                      inset: 0,
+                      background: "rgba(15,23,42,.55)",
+                      backdropFilter: "blur(6px)",
+                      zIndex: 50,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 16,
+                    }}
+                  >
+                    <style>{`
       @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(8px) } to { opacity:1; transform:scale(1) translateY(0) } }
       @keyframes spin { to { transform: rotate(360deg) } }
       @keyframes imgFadeIn { from { opacity:0; transform:scale(.97) } to { opacity:1; transform:scale(1) } }
@@ -1600,717 +1652,732 @@ export default function ProfilePage() {
       .img-btn:hover { background: #e0e7ff !important; color: #3730a3 !important; }
     `}</style>
 
-                  {/* Image lightbox */}
-                  {imagePreview && (
-                    <div
-                      onClick={() => setImagePreview(null)}
-                      style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,.85)",
-                        zIndex: 100,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 24,
-                        cursor: "zoom-out",
-                      }}
-                    >
-                      <img
-                        src={imagePreview}
-                        alt="preview"
-                        style={{
-                          maxWidth: "100%",
-                          maxHeight: "90vh",
-                          borderRadius: 16,
-                          animation: "imgFadeIn .2s ease",
-                          objectFit: "contain",
-                        }}
-                      />
-                      <button
+                    {/* Image lightbox */}
+                    {imagePreview && (
+                      <div
                         onClick={() => setImagePreview(null)}
                         style={{
-                          position: "absolute",
-                          top: 20,
-                          right: 20,
-                          width: 36,
-                          height: 36,
-                          borderRadius: "50%",
-                          border: "none",
-                          background: "rgba(255,255,255,.15)",
-                          color: "white",
-                          cursor: "pointer",
+                          position: "fixed",
+                          inset: 0,
+                          background: "rgba(0,0,0,.85)",
+                          zIndex: 100,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: 18,
+                          padding: 24,
+                          cursor: "zoom-out",
                         }}
                       >
-                        ✕
-                      </button>
-                    </div>
-                  )}
-
-                  <div
-                    style={{
-                      background: "white",
-                      borderRadius: 24,
-                      width: "100%",
-                      maxWidth: 540,
-                      maxHeight: "88vh",
-                      display: "flex",
-                      flexDirection: "column",
-                      boxShadow: "0 24px 64px rgba(0,0,0,.2)",
-                      animation: "modalIn .25s cubic-bezier(.22,1,.36,1)",
-                    }}
-                  >
-                    {/* Header */}
-                    <div
-                      style={{
-                        padding: "20px 24px 16px",
-                        borderBottom: "1px solid #f1f5f9",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <div>
-                        <h3
+                        <img
+                          src={imagePreview}
+                          alt="preview"
                           style={{
+                            maxWidth: "100%",
+                            maxHeight: "90vh",
+                            borderRadius: 16,
+                            animation: "imgFadeIn .2s ease",
+                            objectFit: "contain",
+                          }}
+                        />
+                        <button
+                          onClick={() => setImagePreview(null)}
+                          style={{
+                            position: "absolute",
+                            top: 20,
+                            right: 20,
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            border: "none",
+                            background: "rgba(255,255,255,.15)",
+                            color: "white",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             fontSize: 18,
-                            color: "#0f172a",
-                            margin: "0 0 2px",
-                            letterSpacing: "-0.015em",
                           }}
                         >
-                          Test #{modal.result.id}
-                        </h3>
-                        <p
-                          style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}
-                        >
-                          {fmtDate(modal.result.taken_at)}
-                        </p>
+                          ✕
+                        </button>
                       </div>
-                      <button
-                        onClick={() => setModal(null)}
+                    )}
+
+                    <div
+                      style={{
+                        background: "white",
+                        borderRadius: 24,
+                        width: "100%",
+                        maxWidth: 540,
+                        maxHeight: "88vh",
+                        display: "flex",
+                        flexDirection: "column",
+                        boxShadow: "0 24px 64px rgba(0,0,0,.2)",
+                        animation: "modalIn .25s cubic-bezier(.22,1,.36,1)",
+                      }}
+                    >
+                      {/* Header */}
+                      <div
                         style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 10,
-                          border: "1px solid #e2e8f0",
-                          background: "#f8f9fc",
-                          cursor: "pointer",
+                          padding: "20px 24px 16px",
+                          borderBottom: "1px solid #f1f5f9",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
-                          color: "#64748b",
+                          justifyContent: "space-between",
                           flexShrink: 0,
                         }}
                       >
-                        <svg
-                          width="14"
-                          height="14"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          viewBox="0 0 24 24"
-                        >
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    {/* Score strip */}
-                    <div
-                      style={{
-                        padding: "14px 24px",
-                        background: modal.result.passed ? "#f0fdf4" : "#fff1f2",
-                        borderBottom: "1px solid #f1f5f9",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 16,
-                        flexShrink: 0,
-                      }}
-                    >
-                      <div>
-                        <p
-                          style={{
-                            fontSize: 38,
-                            color: modal.result.passed ? "#16a34a" : "#dc2626",
-                            margin: 0,
-                            lineHeight: 1,
-                          }}
-                        >
-                          {modal.result.score_percent}%
-                        </p>
-                        <p
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: modal.result.passed ? "#15803d" : "#be123c",
-                            margin: "3px 0 0",
-                          }}
-                        >
-                          {modal.result.passed ? "O'tdi ✓" : "O'tmadi"}
-                        </p>
-                      </div>
-                      <div
-                        style={{
-                          flex: 1,
-                          display: "grid",
-                          gridTemplateColumns: "repeat(3,1fr)",
-                          gap: 8,
-                        }}
-                      >
-                        {[
-                          {
-                            val: modal.result.correct,
-                            label: "To'g'ri",
-                            bg: "#dcfce7",
-                            col: "#16a34a",
-                          },
-                          {
-                            val: modal.result.wrong,
-                            label: "Xato",
-                            bg: "#fee2e2",
-                            col: "#dc2626",
-                          },
-                          {
-                            val: fmtTime(modal.result.duration_sec),
-                            label: "Vaqt",
-                            bg: "#eef2ff",
-                            col: "#4f46e5",
-                          },
-                        ].map((s, i) => (
-                          <div
-                            key={i}
+                        <div>
+                          <h3
                             style={{
-                              background: s.bg,
-                              borderRadius: 10,
-                              padding: "8px",
-                              textAlign: "center",
+                              fontSize: 18,
+                              color: "#0f172a",
+                              margin: "0 0 2px",
+                              letterSpacing: "-0.015em",
                             }}
                           >
-                            <p
-                              style={{
-                                fontSize: 18,
-                                color: s.col,
-                                margin: "0 0 1px",
-                                lineHeight: 1,
-                              }}
-                            >
-                              {s.val}
-                            </p>
-                            <p
-                              style={{
-                                fontSize: 11,
-                                color: s.col,
-                                opacity: 0.7,
-                                margin: 0,
-                              }}
-                            >
-                              {s.label}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div
-                      className="wrong-scroll"
-                      style={{
-                        flex: 1,
-                        overflowY: "auto",
-                        padding: "16px 24px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
-                      }}
-                    >
-                      {modalLoading ? (
-                        <div
+                            Test #{modal.result.id}
+                          </h3>
+                          <p
+                            style={{
+                              fontSize: 12,
+                              color: "#94a3b8",
+                              margin: 0,
+                            }}
+                          >
+                            {fmtDate(modal.result.taken_at)}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setModal(null)}
                           style={{
-                            padding: "4px 0",
+                            width: 32,
+                            height: 32,
+                            borderRadius: 10,
+                            border: "1px solid #e2e8f0",
+                            background: "#f8f9fc",
+                            cursor: "pointer",
                             display: "flex",
-                            flexDirection: "column",
-                            gap: 12,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#64748b",
+                            flexShrink: 0,
                           }}
                         >
-                          <div
-                            style={{
-                              height: 10,
-                              width: 120,
-                              borderRadius: 6,
-                              background:
-                                "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
-                              backgroundSize: "200% 100%",
-                              animation: "shimmer 1.5s infinite",
-                            }}
-                          />
+                          <svg
+                            width="14"
+                            height="14"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            viewBox="0 0 24 24"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
 
-                          {[0, 1].map((i) => (
+                      {/* Score strip */}
+                      <div
+                        style={{
+                          padding: "14px 24px",
+                          background: modal.result.passed
+                            ? "#f0fdf4"
+                            : "#fff1f2",
+                          borderBottom: "1px solid #f1f5f9",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 16,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <div>
+                          <p
+                            style={{
+                              fontSize: 38,
+                              color: modal.result.passed
+                                ? "#16a34a"
+                                : "#dc2626",
+                              margin: 0,
+                              lineHeight: 1,
+                            }}
+                          >
+                            {modal.result.score_percent}%
+                          </p>
+                          <p
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: modal.result.passed
+                                ? "#15803d"
+                                : "#be123c",
+                              margin: "3px 0 0",
+                            }}
+                          >
+                            {modal.result.passed ? "O'tdi ✓" : "O'tmadi"}
+                          </p>
+                        </div>
+                        <div
+                          style={{
+                            flex: 1,
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3,1fr)",
+                            gap: 8,
+                          }}
+                        >
+                          {[
+                            {
+                              val: modal.result.correct,
+                              label: "To'g'ri",
+                              bg: "#dcfce7",
+                              col: "#16a34a",
+                            },
+                            {
+                              val: modal.result.wrong,
+                              label: "Xato",
+                              bg: "#fee2e2",
+                              col: "#dc2626",
+                            },
+                            {
+                              val: fmtTime(modal.result.duration_sec),
+                              label: "Vaqt",
+                              bg: "#eef2ff",
+                              col: "#4f46e5",
+                            },
+                          ].map((s, i) => (
                             <div
                               key={i}
                               style={{
-                                background: "#f8f9fc",
-                                border: "1px solid #f1f5f9",
-                                borderRadius: 16,
-                                padding: 14,
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 10,
-                                opacity: 1 - i * 0.2,
+                                background: s.bg,
+                                borderRadius: 10,
+                                padding: "8px",
+                                textAlign: "center",
                               }}
                             >
-                              <div style={{ display: "flex", gap: 8 }}>
+                              <p
+                                style={{
+                                  fontSize: 18,
+                                  color: s.col,
+                                  margin: "0 0 1px",
+                                  lineHeight: 1,
+                                }}
+                              >
+                                {s.val}
+                              </p>
+                              <p
+                                style={{
+                                  fontSize: 11,
+                                  color: s.col,
+                                  opacity: 0.7,
+                                  margin: 0,
+                                }}
+                              >
+                                {s.label}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div
+                        className="wrong-scroll"
+                        style={{
+                          flex: 1,
+                          overflowY: "auto",
+                          padding: "16px 24px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 12,
+                        }}
+                      >
+                        {modalLoading ? (
+                          <div
+                            style={{
+                              padding: "4px 0",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 12,
+                            }}
+                          >
+                            <div
+                              style={{
+                                height: 10,
+                                width: 120,
+                                borderRadius: 6,
+                                background:
+                                  "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                                backgroundSize: "200% 100%",
+                                animation: "shimmer 1.5s infinite",
+                              }}
+                            />
+
+                            {[0, 1].map((i) => (
+                              <div
+                                key={i}
+                                style={{
+                                  background: "#f8f9fc",
+                                  border: "1px solid #f1f5f9",
+                                  borderRadius: 16,
+                                  padding: 14,
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: 10,
+                                  opacity: 1 - i * 0.2,
+                                }}
+                              >
+                                <div style={{ display: "flex", gap: 8 }}>
+                                  <div
+                                    style={{
+                                      width: 20,
+                                      height: 20,
+                                      borderRadius: 6,
+                                      flexShrink: 0,
+                                      background:
+                                        "linear-gradient(90deg,#fee2e2 25%,#fecaca 50%,#fee2e2 75%)",
+                                      backgroundSize: "200% 100%",
+                                      animation: "shimmer 1.5s infinite",
+                                    }}
+                                  />
+                                  <div
+                                    style={{
+                                      flex: 1,
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: 6,
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        height: 11,
+                                        width: "90%",
+                                        borderRadius: 5,
+                                        background:
+                                          "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                                        backgroundSize: "200% 100%",
+                                        animation: "shimmer 1.5s infinite",
+                                      }}
+                                    />
+                                    <div
+                                      style={{
+                                        height: 11,
+                                        width: "65%",
+                                        borderRadius: 5,
+                                        background:
+                                          "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                                        backgroundSize: "200% 100%",
+                                        animation: "shimmer 1.5s infinite",
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+
                                 <div
                                   style={{
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: 6,
-                                    flexShrink: 0,
+                                    height: 36,
+                                    borderRadius: 10,
                                     background:
-                                      "linear-gradient(90deg,#fee2e2 25%,#fecaca 50%,#fee2e2 75%)",
+                                      "linear-gradient(90deg,#f0fdf4 25%,#dcfce7 50%,#f0fdf4 75%)",
                                     backgroundSize: "200% 100%",
                                     animation: "shimmer 1.5s infinite",
                                   }}
                                 />
+
                                 <div
                                   style={{
-                                    flex: 1,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 6,
+                                    height: 36,
+                                    borderRadius: 10,
+                                    background:
+                                      "linear-gradient(90deg,#fff1f2 25%,#fee2e2 50%,#fff1f2 75%)",
+                                    backgroundSize: "200% 100%",
+                                    animation: "shimmer 1.5s infinite",
                                   }}
-                                >
-                                  <div
-                                    style={{
-                                      height: 11,
-                                      width: "90%",
-                                      borderRadius: 5,
-                                      background:
-                                        "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
-                                      backgroundSize: "200% 100%",
-                                      animation: "shimmer 1.5s infinite",
-                                    }}
-                                  />
-                                  <div
-                                    style={{
-                                      height: 11,
-                                      width: "65%",
-                                      borderRadius: 5,
-                                      background:
-                                        "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
-                                      backgroundSize: "200% 100%",
-                                      animation: "shimmer 1.5s infinite",
-                                    }}
-                                  />
-                                </div>
+                                />
                               </div>
+                            ))}
 
-                              <div
-                                style={{
-                                  height: 36,
-                                  borderRadius: 10,
-                                  background:
-                                    "linear-gradient(90deg,#f0fdf4 25%,#dcfce7 50%,#f0fdf4 75%)",
-                                  backgroundSize: "200% 100%",
-                                  animation: "shimmer 1.5s infinite",
-                                }}
-                              />
-
-                              <div
-                                style={{
-                                  height: 36,
-                                  borderRadius: 10,
-                                  background:
-                                    "linear-gradient(90deg,#fff1f2 25%,#fee2e2 50%,#fff1f2 75%)",
-                                  backgroundSize: "200% 100%",
-                                  animation: "shimmer 1.5s infinite",
-                                }}
-                              />
-                            </div>
-                          ))}
-
-                          <style>{`
+                            <style>{`
       @keyframes shimmer {
         0%   { background-position: 200% 0; }
         100% { background-position: -200% 0; }
       }
     `}</style>
-                        </div>
-                      ) : modal.wrongs.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "36px 0" }}>
-                          <span
-                            style={{
-                              fontSize: 36,
-                              display: "block",
-                              marginBottom: 10,
-                            }}
+                          </div>
+                        ) : modal.wrongs.length === 0 ? (
+                          <div
+                            style={{ textAlign: "center", padding: "36px 0" }}
                           >
-                            🎉
-                          </span>
-                          <p
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 700,
-                              color: "#16a34a",
-                              marginBottom: 4,
-                            }}
-                          >
-                            Barcha savollarga to'g'ri javob berdingiz!
-                          </p>
-                          <p style={{ fontSize: 13, color: "#94a3b8" }}>
-                            Bu testda hech qanday xato yo'q
-                          </p>
-                        </div>
-                      ) : (
-                        <>
-                          <p
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: "#94a3b8",
-                              letterSpacing: "0.07em",
-                              textTransform: "uppercase",
-                              margin: 0,
-                            }}
-                          >
-                            {modal.wrongs.length} ta xato savol
-                          </p>
-
-                          {modal.wrongs.map((w, i) => (
-                            <div
-                              key={w.id}
+                            <span
                               style={{
-                                background: "#f8f9fc",
-                                border: "1px solid #f1f5f9",
-                                borderRadius: 16,
-                                overflow: "hidden",
+                                fontSize: 36,
+                                display: "block",
+                                marginBottom: 10,
                               }}
                             >
-                              <div style={{ padding: "14px" }}>
-                                {/* Savol raqami + matni */}
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    gap: 8,
-                                    marginBottom: 10,
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      width: 20,
-                                      height: 20,
-                                      background: "#fee2e2",
-                                      borderRadius: 6,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      fontSize: 10,
-                                      fontWeight: 700,
-                                      color: "#dc2626",
-                                      flexShrink: 0,
-                                      marginTop: 1,
-                                    }}
-                                  >
-                                    {i + 1}
-                                  </span>
-                                  <p
-                                    style={{
-                                      fontSize: 13,
-                                      fontWeight: 600,
-                                      color: "#1e293b",
-                                      margin: 0,
-                                      lineHeight: 1.45,
-                                    }}
-                                  >
-                                    {w.questions.question}
-                                  </p>
-                                </div>
+                              🎉
+                            </span>
+                            <p
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 700,
+                                color: "#16a34a",
+                                marginBottom: 4,
+                              }}
+                            >
+                              Barcha savollarga to'g'ri javob berdingiz!
+                            </p>
+                            <p style={{ fontSize: 13, color: "#94a3b8" }}>
+                              Bu testda hech qanday xato yo'q
+                            </p>
+                          </div>
+                        ) : (
+                          <>
+                            <p
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: "#94a3b8",
+                                letterSpacing: "0.07em",
+                                textTransform: "uppercase",
+                                margin: 0,
+                              }}
+                            >
+                              {modal.wrongs.length} ta xato savol
+                            </p>
 
-                                {/* Rasm ko'rish button — agar mavjud bo'lsa */}
-                                {w.questions.image && (
-                                  <button
-                                    className="img-btn"
-                                    onClick={() =>
-                                      setImagePreview(
-                                        imgUrl(w.questions.image) ?? "",
-                                      )
-                                    }
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 6,
-                                      marginBottom: 10,
-                                      padding: "6px 12px",
-                                      background: "#eef2ff",
-                                      border: "1px solid #c7d2fe",
-                                      borderRadius: 8,
-                                      cursor: "pointer",
-                                      color: "#4f46e5",
-                                      fontSize: 12,
-                                      fontWeight: 600,
-                                      transition: "all .15s",
-                                    }}
-                                  >
-                                    <svg
-                                      width="14"
-                                      height="14"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <rect
-                                        x="3"
-                                        y="3"
-                                        width="18"
-                                        height="18"
-                                        rx="2"
-                                      />
-                                      <circle cx="8.5" cy="8.5" r="1.5" />
-                                      <polyline points="21 15 16 10 5 21" />
-                                    </svg>
-                                    Rasmni ko'rish
-                                  </button>
-                                )}
-
-                                {/* Variantlar */}
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 6,
-                                  }}
-                                >
-                                  {w.questions.options.map((opt, idx) => {
-                                    const isCorrect = idx === w.correct;
-                                    const isSelected = idx === w.selected;
-                                    if (!isCorrect && !isSelected) return null;
-                                    return (
-                                      <div
-                                        key={idx}
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          gap: 8,
-                                          padding: "8px 12px",
-                                          borderRadius: 10,
-                                          border: `1px solid ${isCorrect ? "#bbf7d0" : "#fecdd3"}`,
-                                          background: isCorrect
-                                            ? "#f0fdf4"
-                                            : "#fff1f2",
-                                        }}
-                                      >
-                                        <div
-                                          style={{
-                                            width: 18,
-                                            height: 18,
-                                            borderRadius: "50%",
-                                            background: isCorrect
-                                              ? "#22c55e"
-                                              : "#ef4444",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            flexShrink: 0,
-                                          }}
-                                        >
-                                          {isCorrect ? (
-                                            <svg
-                                              width="9"
-                                              height="9"
-                                              fill="none"
-                                              stroke="white"
-                                              strokeWidth="2.5"
-                                              viewBox="0 0 24 24"
-                                            >
-                                              <polyline points="20 6 9 17 4 12" />
-                                            </svg>
-                                          ) : (
-                                            <svg
-                                              width="7"
-                                              height="7"
-                                              fill="none"
-                                              stroke="white"
-                                              strokeWidth="2.5"
-                                              viewBox="0 0 24 24"
-                                            >
-                                              <line
-                                                x1="18"
-                                                y1="6"
-                                                x2="6"
-                                                y2="18"
-                                              />
-                                              <line
-                                                x1="6"
-                                                y1="6"
-                                                x2="18"
-                                                y2="18"
-                                              />
-                                            </svg>
-                                          )}
-                                        </div>
-                                        <span
-                                          style={{
-                                            fontSize: 11,
-                                            fontWeight: 700,
-                                            color: isCorrect
-                                              ? "#16a34a"
-                                              : "#dc2626",
-                                            flexShrink: 0,
-                                          }}
-                                        >
-                                          {String.fromCharCode(65 + idx)}.
-                                        </span>
-                                        <span
-                                          style={{
-                                            fontSize: 12,
-                                            color: isCorrect
-                                              ? "#15803d"
-                                              : "#be123c",
-                                            lineHeight: 1.4,
-                                          }}
-                                        >
-                                          {opt}
-                                        </span>
-                                        <span
-                                          style={{
-                                            marginLeft: "auto",
-                                            fontSize: 10,
-                                            fontWeight: 600,
-                                            color: isCorrect
-                                              ? "#16a34a"
-                                              : "#dc2626",
-                                            flexShrink: 0,
-                                          }}
-                                        >
-                                          {isCorrect ? "To'g'ri" : "Siz"}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-
-                                {/* Explanation */}
-                                {w.questions.explanation && (
+                            {modal.wrongs.map((w, i) => (
+                              <div
+                                key={w.id}
+                                style={{
+                                  background: "#f8f9fc",
+                                  border: "1px solid #f1f5f9",
+                                  borderRadius: 16,
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <div style={{ padding: "14px" }}>
+                                  {/* Savol raqami + matni */}
                                   <div
                                     style={{
-                                      marginTop: 8,
-                                      padding: "8px 12px",
-                                      background: "#eff6ff",
-                                      border: "1px solid #bfdbfe",
-                                      borderRadius: 10,
                                       display: "flex",
                                       gap: 8,
+                                      marginBottom: 10,
                                     }}
                                   >
                                     <span
-                                      style={{ fontSize: 13, flexShrink: 0 }}
+                                      style={{
+                                        width: 20,
+                                        height: 20,
+                                        background: "#fee2e2",
+                                        borderRadius: 6,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        color: "#dc2626",
+                                        flexShrink: 0,
+                                        marginTop: 1,
+                                      }}
                                     >
-                                      💡
+                                      {i + 1}
                                     </span>
                                     <p
                                       style={{
-                                        fontSize: 12,
-                                        color: "#1d4ed8",
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                        color: "#1e293b",
                                         margin: 0,
-                                        lineHeight: 1.5,
+                                        lineHeight: 1.45,
                                       }}
                                     >
-                                      {w.questions.explanation}
+                                      {w.questions.question}
                                     </p>
                                   </div>
-                                )}
+
+                                  {/* Rasm ko'rish button — agar mavjud bo'lsa */}
+                                  {w.questions.image && (
+                                    <button
+                                      className="img-btn"
+                                      onClick={() =>
+                                        setImagePreview(
+                                          imgUrl(w.questions.image) ?? "",
+                                        )
+                                      }
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 6,
+                                        marginBottom: 10,
+                                        padding: "6px 12px",
+                                        background: "#eef2ff",
+                                        border: "1px solid #c7d2fe",
+                                        borderRadius: 8,
+                                        cursor: "pointer",
+                                        color: "#4f46e5",
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        transition: "all .15s",
+                                      }}
+                                    >
+                                      <svg
+                                        width="14"
+                                        height="14"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <rect
+                                          x="3"
+                                          y="3"
+                                          width="18"
+                                          height="18"
+                                          rx="2"
+                                        />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <polyline points="21 15 16 10 5 21" />
+                                      </svg>
+                                      Rasmni ko'rish
+                                    </button>
+                                  )}
+
+                                  {/* Variantlar */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: 6,
+                                    }}
+                                  >
+                                    {w.questions.options.map((opt, idx) => {
+                                      const isCorrect = idx === w.correct;
+                                      const isSelected = idx === w.selected;
+                                      if (!isCorrect && !isSelected)
+                                        return null;
+                                      return (
+                                        <div
+                                          key={idx}
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 8,
+                                            padding: "8px 12px",
+                                            borderRadius: 10,
+                                            border: `1px solid ${isCorrect ? "#bbf7d0" : "#fecdd3"}`,
+                                            background: isCorrect
+                                              ? "#f0fdf4"
+                                              : "#fff1f2",
+                                          }}
+                                        >
+                                          <div
+                                            style={{
+                                              width: 18,
+                                              height: 18,
+                                              borderRadius: "50%",
+                                              background: isCorrect
+                                                ? "#22c55e"
+                                                : "#ef4444",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            {isCorrect ? (
+                                              <svg
+                                                width="9"
+                                                height="9"
+                                                fill="none"
+                                                stroke="white"
+                                                strokeWidth="2.5"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <polyline points="20 6 9 17 4 12" />
+                                              </svg>
+                                            ) : (
+                                              <svg
+                                                width="7"
+                                                height="7"
+                                                fill="none"
+                                                stroke="white"
+                                                strokeWidth="2.5"
+                                                viewBox="0 0 24 24"
+                                              >
+                                                <line
+                                                  x1="18"
+                                                  y1="6"
+                                                  x2="6"
+                                                  y2="18"
+                                                />
+                                                <line
+                                                  x1="6"
+                                                  y1="6"
+                                                  x2="18"
+                                                  y2="18"
+                                                />
+                                              </svg>
+                                            )}
+                                          </div>
+                                          <span
+                                            style={{
+                                              fontSize: 11,
+                                              fontWeight: 700,
+                                              color: isCorrect
+                                                ? "#16a34a"
+                                                : "#dc2626",
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            {String.fromCharCode(65 + idx)}.
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: 12,
+                                              color: isCorrect
+                                                ? "#15803d"
+                                                : "#be123c",
+                                              lineHeight: 1.4,
+                                            }}
+                                          >
+                                            {opt}
+                                          </span>
+                                          <span
+                                            style={{
+                                              marginLeft: "auto",
+                                              fontSize: 10,
+                                              fontWeight: 600,
+                                              color: isCorrect
+                                                ? "#16a34a"
+                                                : "#dc2626",
+                                              flexShrink: 0,
+                                            }}
+                                          >
+                                            {isCorrect ? "To'g'ri" : "Siz"}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {/* Explanation */}
+                                  {w.questions.explanation && (
+                                    <div
+                                      style={{
+                                        marginTop: 8,
+                                        padding: "8px 12px",
+                                        background: "#eff6ff",
+                                        border: "1px solid #bfdbfe",
+                                        borderRadius: 10,
+                                        display: "flex",
+                                        gap: 8,
+                                      }}
+                                    >
+                                      <span
+                                        style={{ fontSize: 13, flexShrink: 0 }}
+                                      >
+                                        💡
+                                      </span>
+                                      <p
+                                        style={{
+                                          fontSize: 12,
+                                          color: "#1d4ed8",
+                                          margin: 0,
+                                          lineHeight: 1.5,
+                                        }}
+                                      >
+                                        {w.questions.explanation}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </>
-                      )}
+                            ))}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             </LockedSection>
           </>
         )}
 
         <LockedSection locked={!isPaidUser}>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-50">
-            <h2 className="font-semibold text-slate-800 text-sm">
-              Daraja tizimi
-            </h2>
-          </div>
-          <div className="p-3 grid grid-cols-5 gap-2 relative">
-            {RANKS.map((r) => (
-              <div
-                key={r.name}
-                className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all cursor-pointer ${
-                  rankObj.name === r.name
-                    ? `${r.bg} ${r.border} shadow-sm scale-105`
-                    : "border-slate-100 hover:bg-slate-50"
-                }`}
-                onMouseEnter={() => setHoveredRank(r)}
-                onMouseLeave={() => setHoveredRank(null)}
-              >
-                <span className="text-xl">{r.icon}</span>
-                <span
-                  className={`text-xs font-semibold ${rankObj.name === r.name ? r.color : "text-slate-400"}`}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-50">
+              <h2 className="font-semibold text-slate-800 text-sm">
+                Daraja tizimi
+              </h2>
+            </div>
+            <div className="p-3 grid grid-cols-5 gap-2 relative">
+              {RANKS.map((r) => (
+                <div
+                  key={r.name}
+                  className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    rankObj.name === r.name
+                      ? `${r.bg} ${r.border} shadow-sm scale-105`
+                      : "border-slate-100 hover:bg-slate-50"
+                  }`}
+                  onMouseEnter={() => setHoveredRank(r)}
+                  onMouseLeave={() => setHoveredRank(null)}
                 >
-                  {r.name}
-                </span>
-                <span className="text-xs text-slate-300">{r.minXP}+ XP</span>
-                {rankObj.name === r.name && (
+                  <span className="text-xl">{r.icon}</span>
                   <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full ${r.bg} ${r.color} font-semibold border ${r.border}`}
+                    className={`text-xs font-semibold ${rankObj.name === r.name ? r.color : "text-slate-400"}`}
                   >
-                    Siz
+                    {r.name}
                   </span>
-                )}
-              </div>
-            ))}
+                  <span className="text-xs text-slate-300">{r.minXP}+ XP</span>
+                  {rankObj.name === r.name && (
+                    <span
+                      className={`text-xs px-1.5 py-0.5 rounded-full ${r.bg} ${r.color} font-semibold border ${r.border}`}
+                    >
+                      Siz
+                    </span>
+                  )}
+                </div>
+              ))}
 
-            {/* Hover Modal */}
-            {hoveredRank && (
-              <div
-                className="absolute z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center"
-                style={{
-                  top: "-60px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{hoveredRank.icon}</span>
-                  <div>
-                    <div className={`text-sm font-semibold ${hoveredRank.color}`}>
-                      {hoveredRank.name}
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      {stats.xp >= hoveredRank.minXP
-                        ? "Sizda bor"
-                        : `${hoveredRank.minXP - stats.xp} XP kerak`}
+              {/* Hover Modal */}
+              {hoveredRank && (
+                <div
+                  className="absolute z-10 bg-white border border-slate-200 rounded-lg shadow-lg p-3 text-center"
+                  style={{
+                    top: "-60px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{hoveredRank.icon}</span>
+                    <div>
+                      <div
+                        className={`text-sm font-semibold ${hoveredRank.color}`}
+                      >
+                        {hoveredRank.name}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {stats.xp >= hoveredRank.minXP
+                          ? "Sizda bor"
+                          : `${hoveredRank.minXP - stats.xp} XP kerak`}
+                      </div>
                     </div>
                   </div>
+                  <div
+                    className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"
+                    style={{ marginTop: "-1px" }}
+                  />
                 </div>
-                <div
-                  className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"
-                  style={{ marginTop: "-1px" }}
-                />
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
         </LockedSection>
 
         <LockedSection locked={!isPaidUser}>
-        <WeeklyLeaderboard currentUserId={user.id} />
+          <WeeklyLeaderboard currentUserId={user.id} />
         </LockedSection>
       </main>
     </div>
