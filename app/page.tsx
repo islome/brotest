@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
+import HeroIllustration from "@/components/HeroIllustration";
+import Image from "next/image";
 
 interface UserData {
   firstname: string;
@@ -172,9 +174,11 @@ export default function MainPage() {
                   overflow: "hidden",
                 }}
               >
-                <img
+                <Image
                   src="/logo.png"
                   alt="Brotest Logo"
+                  width={40}
+                  height={40}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -323,7 +327,7 @@ export default function MainPage() {
                     href="/auth"
                     className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 hover:-translate-y-0.5 px-5 py-2.5 rounded-xl transition-all shadow-md shadow-indigo-200 no-underline"
                   >
-                    Ro'yxatdan o'tish
+                    Ro&apos;yxatdan o&apos;tish
                   </a>
                 </>
               )}
@@ -406,7 +410,7 @@ export default function MainPage() {
                       href="/auth"
                       className="flex-1 text-center text-sm font-semibold text-white bg-indigo-600 py-2.5 rounded-xl no-underline hover:bg-indigo-700 transition-all"
                     >
-                      Ro'yxatdan o'tish
+                      Ro&apos;yxatdan o&apos;tish
                     </a>
                   </div>
                 )}
@@ -423,23 +427,25 @@ export default function MainPage() {
         )}
 
         {/* ══ HERO ══ */}
-        <section className="px-5 pt-16 pb-14 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-20">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="fade-up-1 inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold px-4 py-2 rounded-full mb-8">
+        <section className="px-5 pt-14 pb-14 sm:pt-16 sm:pb-16 lg:pt-20 lg:pb-20">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] items-center gap-10 lg:gap-12">
+            {/* ─ Left: copy ─ */}
+            <div className="text-center lg:text-left">
+            <div className="fade-up-1 inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold px-4 py-2 rounded-full mb-7">
               <span className="dot-pulse w-1.5 h-1.5 bg-indigo-500 rounded-full" />
               Avtomobil guvohnomasi uchun test platformasi
             </div>
 
             <div className="fade-up-2 mb-6">
               <h1
-                className="font-syne text-slate-900 leading-[1.02] tracking-[-0.035em] m-0"
-                style={{ fontSize: "clamp(32px, 7vw, 100px)" }}
+                className="font-syne text-slate-900 leading-[1.04] tracking-[-0.035em] m-0"
+                style={{ fontSize: "clamp(24px, 7vw, 44px)" }}
               >
                 Haydovchilik
               </h1>
               <h1
-                className="font-syne text-indigo-600 leading-[1.02] tracking-[-0.035em] m-0 inline-block relative"
-                style={{ fontSize: "clamp(32px, 7vw, 100px)" }}
+                className="font-syne text-indigo-600 leading-[1.04] tracking-[-0.035em] m-0 inline-block relative"
+                style={{ fontSize: "clamp(24px, 7vw, 44px)" }}
               >
                 guvohnomasiga
                 <svg
@@ -457,20 +463,20 @@ export default function MainPage() {
                 </svg>
               </h1>
               <h1
-                className="font-syne text-slate-900 leading-[1.02] tracking-[-0.035em] m-0"
-                style={{ fontSize: "clamp(22px, 7vw, 100px)" }}
+                className="font-syne text-slate-900 leading-[1.04] tracking-[-0.035em] m-0"
+                style={{ fontSize: "clamp(24px, 7vw, 44px)" }}
               >
                 topshiring!
               </h1>
             </div>
 
-            <p className="fade-up-3 text-slate-500 leading-relaxed mx-auto mb-10 max-w-lg text-base sm:text-lg">
+            <p className="fade-up-3 text-slate-500 leading-relaxed mx-auto lg:mx-0 mb-9 max-w-lg text-base sm:text-lg">
               Real savollarga asoslangan testlar, tezkor natijalar va kuzatuv
-              statistikasi. Imtihonga tayyor bo'ling.
+              statistikasi. Imtihonga tayyor bo&apos;ling.
             </p>
 
             {/* CTA */}
-            <div className="fade-up-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="fade-up-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
               <a
                 href="/test"
                 className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-indigo-600 hover:bg-indigo-700 hover:-translate-y-0.5 text-white font-bold text-base px-8 py-4 rounded-2xl transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 no-underline"
@@ -515,6 +521,12 @@ export default function MainPage() {
                   </svg>
                 </a>
               )}
+            </div>
+            </div>
+
+            {/* ─ Right: illustration ─ */}
+            <div className="fade-up-3 mt-4 lg:mt-0">
+              <HeroIllustration />
             </div>
           </div>
         </section>
@@ -612,7 +624,7 @@ export default function MainPage() {
                 Nima uchun Brotest?
               </h2>
               <p className="text-slate-500 text-base max-w-md mx-auto">
-                Imtihonga tayyorlanishning eng samarali yo'li
+                Imtihonga tayyorlanishning eng samarali yoli
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -652,8 +664,8 @@ export default function MainPage() {
                   Bugun boshlang!
                 </h2>
                 <p className="text-indigo-200 text-base sm:text-lg mb-8 max-w-md mx-auto leading-relaxed">
-                  Minglab o'zbekistonliklar shu platforma orqali guvohnoma oldi.
-                  Siz ham ularga qo'shiling.
+                  Minglab o&apos;zbekistonliklar shu platforma orqali guvohnoma oldi.
+                  Siz ham ularga qo&apos;shiling.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <a
@@ -675,7 +687,7 @@ export default function MainPage() {
                       href="/auth"
                       className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 hover:-translate-y-0.5 border border-white/25 text-white font-semibold text-sm sm:text-base px-7 py-3.5 rounded-2xl transition-all no-underline"
                     >
-                      Ro'yxatdan o'tish
+                      Ro&apos;yxatdan o&apos;tish
                     </a>
                   )}
                 </div>
