@@ -6,12 +6,49 @@ import { createClient } from "@/lib/supabase-browser";
 const PLUS_PRICE = 2.99;
 const LIFE_PRICE = 39.99;
 
+// ─── Game Ranks (mirrors profile page) ────────────────────────────────────────
+
+const RANKS = [
+  { name: "Yangi", icon: "🌱", color: "text-slate-600", bg: "bg-slate-100", minXP: 0 },
+  { name: "Boshliq", icon: "🚗", color: "text-blue-600", bg: "bg-blue-50", minXP: 1500 },
+  { name: "O'rtacha", icon: "⭐", color: "text-yellow-600", bg: "bg-yellow-50", minXP: 3000 },
+  { name: "Tajribali", icon: "🔥", color: "text-orange-600", bg: "bg-orange-50", minXP: 5500 },
+  { name: "Expert", icon: "👑", color: "text-purple-600", bg: "bg-purple-50", minXP: 10000 },
+];
+
+function getRank(xp: number) {
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (xp >= RANKS[i].minXP) return RANKS[i];
+  }
+  return RANKS[0];
+}
+
+const SUBSCRIPTION_BADGES: Record<string, { label: string; className: string }> = {
+  free: { label: "Free", className: "bg-gray-100 text-gray-600" },
+  plus: { label: "Plus", className: "bg-purple-50 text-purple-600" },
+  life: { label: "Life", className: "bg-amber-50 text-amber-600" },
+};
+const SUBSCRIPTION_ORDER: Record<string, number> = { free: 0, plus: 1, life: 2 };
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface UserRow {
   id: string;
   subscription: string;
   created_at: string;
+}
+
+interface UserDetail {
+  id: string;
+  firstname: string;
+  lastname: string;
+  username: string;
+  subscription: string;
+  avatar_icon: string | null;
+  created_at: string;
+  totalTests: number;
+  totalCorrect: number;
+  xp: number;
 }
 
 interface DayData {
@@ -361,6 +398,162 @@ function DonutChart({ items }: { items: { label: string; value: number; color: s
   );
 }
 
+// ─── Users Table ──────────────────────────────────────────────────────────────
+
+type UserSortKey = "name" | "subscription" | "level" | "tests" | "joined";
+
+function SortHeader({
+  label,
+  sortKeyName,
+  align = "left",
+  activeKey,
+  sortDir,
+  onSort,
+}: {
+  label: string;
+  sortKeyName: UserSortKey;
+  align?: "left" | "right";
+  activeKey: UserSortKey;
+  sortDir: "asc" | "desc";
+  onSort: (key: UserSortKey) => void;
+}) {
+  const active = activeKey === sortKeyName;
+  return (
+    <th
+      onClick={() => onSort(sortKeyName)}
+      className={`text-[11px] font-semibold uppercase tracking-wide py-3 px-4 cursor-pointer select-none transition hover:text-gray-600 ${
+        align === "left" ? "text-left" : "text-right"
+      } ${active ? "text-gray-700" : "text-gray-400"}`}
+    >
+      {label}
+      {active ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+    </th>
+  );
+}
+
+function UsersTable({ users }: { users: UserDetail[] }) {
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<UserSortKey>("joined");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  function toggleSort(key: UserSortKey) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "joined" || key === "level" || key === "tests" ? "desc" : "asc");
+    }
+  }
+
+  const filtered = users.filter((u) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      `${u.firstname} ${u.lastname}`.toLowerCase().includes(q) ||
+      u.username.toLowerCase().includes(q)
+    );
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    let cmp = 0;
+    switch (sortKey) {
+      case "name":
+        cmp = `${a.firstname} ${a.lastname}`.localeCompare(`${b.firstname} ${b.lastname}`);
+        break;
+      case "subscription":
+        cmp = (SUBSCRIPTION_ORDER[a.subscription] ?? 0) - (SUBSCRIPTION_ORDER[b.subscription] ?? 0);
+        break;
+      case "level":
+        cmp = a.xp - b.xp;
+        break;
+      case "tests":
+        cmp = a.totalTests - b.totalTests;
+        break;
+      case "joined":
+        cmp = a.created_at.localeCompare(b.created_at);
+        break;
+    }
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-800">Users</h2>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {users.length.toLocaleString()} registered users 
+          </p>
+        </div>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name or username..."
+          className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-100 w-full sm:w-56"
+        />
+      </div>
+      <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
+        <table className="w-full">
+          <thead className="sticky top-0 bg-white z-10">
+            <tr className="bg-gray-50/70">
+              <th className="py-3 px-4 w-12" />
+              <SortHeader label="User" sortKeyName="name" activeKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortHeader label="Plan" sortKeyName="subscription" align="right" activeKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortHeader label="Level" sortKeyName="level" align="right" activeKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortHeader label="Tests" sortKeyName="tests" align="right" activeKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortHeader label="Joined" sortKeyName="joined" align="right" activeKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {sorted.map((u) => {
+              const rank = getRank(u.xp);
+              const sub = SUBSCRIPTION_BADGES[u.subscription] ?? SUBSCRIPTION_BADGES.free;
+              return (
+                <tr key={u.id} className="hover:bg-gray-50/50 transition">
+                  <td className="px-4 py-3">
+                    <div className="w-9 h-9 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-base">
+                      {u.avatar_icon ?? "🙂"}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-sm font-medium text-gray-800">
+                      {u.firstname} {u.lastname}
+                    </div>
+                    <div className="text-xs text-gray-400">@{u.username}</div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-full ${sub.className}`}>
+                      {sub.label}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${rank.color}`}>
+                      <span>{rank.icon}</span> {rank.name}
+                    </span>
+                    <div className="text-[10px] text-gray-400 mt-0.5">{u.xp.toLocaleString()} XP</div>
+                  </td>
+                  <td className="px-4 py-3 text-right text-xs text-gray-500">{u.totalTests}</td>
+                  <td className="px-4 py-3 text-right text-xs text-gray-500">
+                    {new Date(u.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              );
+            })}
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-400">
+                  No users found 🤷🏻‍♂️
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ─── Data Processing ──────────────────────────────────────────────────────────
 
 function processData(users: UserRow[]): Analytics {
@@ -419,6 +612,7 @@ export default function AnalyticsPage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Analytics | null>(null);
+  const [userList, setUserList] = useState<UserDetail[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -442,7 +636,7 @@ export default function AnalyticsPage() {
 
       const { data: users } = await supabase
         .from("users")
-        .select("id, subscription, created_at")
+        .select("id, firstname, lastname, username, subscription, avatar_icon, created_at")
         .order("created_at", { ascending: true });
 
       if (!users) {
@@ -450,6 +644,37 @@ export default function AnalyticsPage() {
         return;
       }
       setData(processData(users));
+
+      const { data: testResults } = await supabase
+        .from("test_results")
+        .select("user_id, correct");
+
+      const statsMap = new Map<string, { tests: number; correct: number }>();
+      (testResults ?? []).forEach((r) => {
+        const cur = statsMap.get(r.user_id) ?? { tests: 0, correct: 0 };
+        cur.tests += 1;
+        cur.correct += r.correct ?? 0;
+        statsMap.set(r.user_id, cur);
+      });
+
+      setUserList(
+        users.map((u) => {
+          const s = statsMap.get(u.id) ?? { tests: 0, correct: 0 };
+          return {
+            id: u.id,
+            firstname: u.firstname ?? "",
+            lastname: u.lastname ?? "",
+            username: u.username ?? "",
+            subscription: u.subscription ?? "free",
+            avatar_icon: u.avatar_icon ?? null,
+            created_at: u.created_at,
+            totalTests: s.tests,
+            totalCorrect: s.correct,
+            xp: s.tests * 10 + s.correct * 5,
+          };
+        }),
+      );
+
       setLoading(false);
     }
     load();
@@ -726,6 +951,9 @@ export default function AnalyticsPage() {
           </p>
         </div>
       </div>
+
+      {/* ── Users ── */}
+      <UsersTable users={userList} />
     </div>
   );
 }
