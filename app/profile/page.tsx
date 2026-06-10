@@ -591,7 +591,7 @@ export default function ProfilePage() {
       setAchievements(achData ?? []);
       setLoading(false);
 
-      // ── Feedback modal: 10 ta testdan so'ng, faqat 1 marta ──
+      // ── Feedback modal: 3 ta testdan so'ng, faqat 1 marta ──
       const seenKey = `bt_feedback_seen_${authUser.id}`;
       const alreadySeen =
         typeof window !== "undefined" &&
@@ -603,7 +603,7 @@ export default function ProfilePage() {
           .select("id", { count: "exact", head: true })
           .eq("user_id", authUser.id);
 
-        if ((testCount ?? 0) >= 10) {
+        if ((testCount ?? 0) >= 3) {
           // DB'da fikr qoldirganmi tekshiramiz (manba: haqiqat)
           const { data: fbData } = await supabase
             .from("feedback")

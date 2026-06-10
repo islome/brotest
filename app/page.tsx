@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import HeroIllustration from "@/components/HeroIllustration";
+import FeedbackCarousel from "@/components/FeedbackCarousel";
 import Image from "next/image";
 
 interface UserData {
@@ -695,6 +696,9 @@ export default function MainPage() {
             </div>
           </div>
         </section>
+
+        {/* ══ FOYDALANUVCHILAR FIKRI ══ */}
+        <FeedbackCarousel />
 
         {/* ══ FOOTER ══ */}
         <footer className="border-t border-slate-200 bg-white px-5 py-7 sm:py-8">
