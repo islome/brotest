@@ -200,7 +200,7 @@ export default function AdminPage() {
     setSaving(true);
 
     // Rasm yuklash
-    let imageName = form.image || null;
+    let imageName = form.image.trim() || null;
     if (imageFile) {
       const uploaded = await uploadImage(imageFile);
       if (!uploaded) {

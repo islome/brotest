@@ -176,8 +176,10 @@ export default function TestPage() {
   const imgUrl = useCallback(
     (img: string | null) => {
       if (!img) return null;
-      if (img.startsWith("http")) return img;
-      return supabase.storage.from(BUCKET).getPublicUrl(img).data.publicUrl;
+      const trimmed = img.trim();
+      if (!trimmed) return null;
+      if (trimmed.startsWith("http")) return trimmed;
+      return supabase.storage.from(BUCKET).getPublicUrl(trimmed).data.publicUrl;
     },
     [supabase],
   );
