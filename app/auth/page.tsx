@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
+import Link from "next/link";
 
 type Mode = "login" | "signup";
 const MAX_ATTEMPTS = 5;
@@ -235,7 +236,14 @@ export default function AuthPage() {
           password,
         }),
       });
-      const data = await res.json();
+      let data: { error?: string; success?: boolean; userId?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        setError("Server xatosi yuz berdi. Qayta urinib ko'ring.");
+        setLoading(false);
+        return;
+      }
 
       if (!res.ok) {
         setError(data.error || "Xato yuz berdi.");
@@ -296,7 +304,7 @@ export default function AuthPage() {
               ...anim(0),
             }}
           >
-            <a
+            <Link
               href="/"
               style={{
                 display: "flex",
@@ -341,7 +349,7 @@ export default function AuthPage() {
               >
                 Autotest
               </span>
-            </a>
+            </Link>
             <p
               style={{
                 fontSize: 13,
