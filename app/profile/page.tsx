@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import WeeklyLeaderboard from "@/components/profile/WeeklyLeaderboard";
 import ProfileHero from "@/components/profile/ProfileHero";
+import FeedbackModal from "@/components/FeedbackModal";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -469,6 +470,7 @@ export default function ProfilePage() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [streak, setStreak] = useState<StreakData | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const [modal, setModal] = useState<{
     result: TestResult;
@@ -588,6 +590,34 @@ export default function ProfilePage() {
         .eq("user_id", authUser.id);
       setAchievements(achData ?? []);
       setLoading(false);
+
+      // ── Feedback modal: 10 ta testdan so'ng, faqat 1 marta ──
+      const seenKey = `bt_feedback_seen_${authUser.id}`;
+      const alreadySeen =
+        typeof window !== "undefined" &&
+        localStorage.getItem(seenKey) === "1";
+
+      if (!alreadySeen) {
+        const { count: testCount } = await supabase
+          .from("test_results")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", authUser.id);
+
+        if ((testCount ?? 0) >= 10) {
+          // DB'da fikr qoldirganmi tekshiramiz (manba: haqiqat)
+          const { data: fbData } = await supabase
+            .from("feedback")
+            .select("id")
+            .eq("user_id", authUser.id)
+            .limit(1);
+
+          if (!fbData || fbData.length === 0) {
+            setTimeout(() => setShowFeedback(true), 900);
+          } else {
+            localStorage.setItem(seenKey, "1");
+          }
+        }
+      }
     }
     load();
   }, [supabase, router]);
@@ -2380,6 +2410,25 @@ export default function ProfilePage() {
           <WeeklyLeaderboard currentUserId={user.id} />
         </LockedSection>
       </main>
+
+      {showFeedback && (
+        <FeedbackModal
+          userId={user.id}
+          userName={
+            `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() ||
+            user.username
+          }
+          onClose={() => {
+            setShowFeedback(false);
+            if (typeof window !== "undefined")
+              localStorage.setItem(`bt_feedback_seen_${user.id}`, "1");
+          }}
+          onSubmitted={() => {
+            if (typeof window !== "undefined")
+              localStorage.setItem(`bt_feedback_seen_${user.id}`, "1");
+          }}
+        />
+      )}
     </div>
   );
 }
