@@ -27,6 +27,7 @@ export default function AuthPage() {
   const [blockSecs, setBlockSecs] = useState(0);
   const [fading, setFading] = useState(false);
   const [vis, setVis] = useState(false);
+  const [blockCount, setBlockCount] = useState(0);
 
   useEffect(() => {
     setTimeout(() => setVis(true), 60);
@@ -91,6 +92,7 @@ export default function AuthPage() {
       if (d.isBlocked) {
         startBlockTimer();
         setAttempts(d.attempts);
+        setBlockCount(d.attempts);
       }
       return d.isBlocked ?? false;
     } catch {
@@ -478,7 +480,7 @@ export default function AuthPage() {
                     {fmt(blockSecs)}
                   </p>
                   <p style={{ fontSize: 12, color: "#fb923c" }}>
-                    5 ta noto'g'ri urinishdan keyin blok
+                    {blockCount} ta urinishdan qoldi
                   </p>
                 </div>
               )}
@@ -970,7 +972,7 @@ export default function AuthPage() {
               ...anim(160),
             }}
           >
-            <a
+            <Link
               href="/"
               style={{
                 color: "#94a3b8",
@@ -985,7 +987,7 @@ export default function AuthPage() {
               }
             >
               ← Bosh sahifaga qaytish
-            </a>
+            </Link>
           </p>
         </div>
       </div>

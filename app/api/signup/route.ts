@@ -17,13 +17,24 @@ export async function POST(request: Request) {
 
   const { firstname, lastname, username, password } = body
 
-  if (!firstname?.trim()) return NextResponse.json({ error: 'Ism kiriting' }, { status: 400 })
-  if (!lastname?.trim())  return NextResponse.json({ error: 'Familiya kiriting' }, { status: 400 })
-  if (!username?.trim())  return NextResponse.json({ error: 'Username kiriting' }, { status: 400 })
-  if (username.length < 3) return NextResponse.json({ error: 'Username kamida 3 ta belgi' }, { status: 400 })
-  if (!password || password.length < 6) return NextResponse.json({ error: 'Parol kamida 6 ta belgi' }, { status: 400 })
+  // Maydonlar satr ekanligini tekshirish (mijoz tomonidagi tekshiruvga ishonmaymiz)
+  if (typeof firstname !== 'string' || !firstname.trim())
+    return NextResponse.json({ error: 'Ism kiriting' }, { status: 400 })
+  if (typeof lastname !== 'string' || !lastname.trim())
+    return NextResponse.json({ error: 'Familiya kiriting' }, { status: 400 })
+  if (typeof username !== 'string' || !username.trim())
+    return NextResponse.json({ error: 'Username kiriting' }, { status: 400 })
+  if (username.trim().length < 3)
+    return NextResponse.json({ error: 'Username kamida 3 ta belgi' }, { status: 400 })
+  if (typeof password !== 'string' || password.length < 6)
+    return NextResponse.json({ error: 'Parol kamida 6 ta belgi' }, { status: 400 })
 
   const cleanUsername = username.trim().toLowerCase()
+
+  // Username faqat harf, raqam va pastki chiziqdan iborat bo'lishi shart —
+  // serverda majburlanadi (mijozdagi .replace() xavfsizlik chorasi emas)
+  if (!/^[a-z0-9_]+$/.test(cleanUsername))
+    return NextResponse.json({ error: 'Username faqat harf, raqam va _ belgisidan iborat' }, { status: 400 })
 
   try {
     const { data: exists } = await supabaseAdmin

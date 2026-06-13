@@ -10,10 +10,22 @@ const supabaseAdmin = createClient(
 const MAX_ATTEMPTS  = 5
 const BLOCK_MINUTES = 15
 
-export async function POST(request: Request) {
-  const { action, email } = await request.json()
+// Faqat ilovaning o'z username maydoni qabul qilinadi: <username>@autotest.uz
+const EMAIL_RE = /^[a-z0-9_]+@autotest\.uz$/
 
-  if (!email) {
+export async function POST(request: Request) {
+  let body: { action?: string; email?: string }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Noto'g'ri so'rov formati" }, { status: 400 })
+  }
+
+  const { action, email } = body
+
+  // Email satr va ruxsat etilgan formatda bo'lishi shart — ixtiyoriy tashqi
+  // manzillarning urinishlar hisoblagichini "poisoning" qilishini cheklaydi
+  if (typeof email !== 'string' || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: 'Email kerak' }, { status: 400 })
   }
 
