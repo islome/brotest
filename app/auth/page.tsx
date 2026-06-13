@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import Link from "next/link";
+import Image from "next/image";
+import AuthScene from "@/components/AuthScene";
 
 type Mode = "login" | "signup";
 const MAX_ATTEMPTS = 5;
@@ -12,6 +14,7 @@ export default function AuthPage() {
   const router = useRouter();
   const supabase = createClient();
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
 
   const [mode, setMode] = useState<Mode>("login");
   const [firstname, setFirstname] = useState("");
@@ -27,22 +30,26 @@ export default function AuthPage() {
   const [blockSecs, setBlockSecs] = useState(0);
   const [fading, setFading] = useState(false);
   const [vis, setVis] = useState(false);
-  const [blockCount, setBlockCount] = useState(0);
+  const [paneH, setPaneH] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    setTimeout(() => setVis(true), 60);
+    const t = setTimeout(() => setVis(true), 60);
     return () => {
+      clearTimeout(t);
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
 
-  function anim(delay: number): React.CSSProperties {
-    return {
-      opacity: vis ? 1 : 0,
-      transform: vis ? "translateY(0)" : "translateY(20px)",
-      transition: `opacity 0.55s ease ${delay}ms, transform 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-    };
-  }
+  // Login ↔ signup almashganda kartochka balandligini silliq animatsiya qilish
+  useEffect(() => {
+    const el = paneRef.current;
+    if (!el) return;
+    const update = () => setPaneH(el.offsetHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   function startBlockTimer() {
     setIsBlocked(true);
@@ -74,7 +81,7 @@ export default function AuthPage() {
       setError("");
       setSuccess("");
       setFading(false);
-    }, 160);
+    }, 190);
   }
 
   async function checkBlocked(): Promise<boolean> {
@@ -92,7 +99,6 @@ export default function AuthPage() {
       if (d.isBlocked) {
         startBlockTimer();
         setAttempts(d.attempts);
-        setBlockCount(d.attempts);
       }
       return d.isBlocked ?? false;
     } catch {
@@ -274,176 +280,184 @@ export default function AuthPage() {
   }
 
   const strength = pwStrength(password);
+  const isSignup = mode === "signup";
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap');
-        .fs { font-family: 'Syne', sans-serif; font-weight: 800; }
-        .fb { font-family: 'DM Sans', sans-serif; }
+        .font-syne { font-family: 'Syne', sans-serif; font-weight: 800; }
+        .font-dm   { font-family: 'DM Sans', sans-serif; }
         input:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px #f8f9fc inset !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes authFieldUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .auth-stagger > * { animation: authFieldUp .42s cubic-bezier(.22,1,.36,1) both; }
+        .auth-stagger > *:nth-child(1){animation-delay:.02s}
+        .auth-stagger > *:nth-child(2){animation-delay:.07s}
+        .auth-stagger > *:nth-child(3){animation-delay:.12s}
+        .auth-stagger > *:nth-child(4){animation-delay:.17s}
+        .auth-stagger > *:nth-child(5){animation-delay:.22s}
+        @media (prefers-reduced-motion: reduce){
+          .auth-stagger > *{animation:none}
+        }
       `}</style>
 
-      <div
-        className="fb"
-        style={{
-          minHeight: "100vh",
-          background: "#f8f9fc",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 24,
-        }}
-      >
-        <div style={{ width: "100%", maxWidth: 440 }}>
-          {/* Logo */}
+      <div className="font-dm min-h-screen w-full bg-[#f8f9fc] lg:grid lg:grid-cols-[1.05fr_0.95fr]">
+        {/* ══ LEFT — showcase panel (desktop) ══ */}
+        <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden p-10 xl:p-14 text-white">
+          {/* gradient + glow background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800" />
+          <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] rounded-full bg-violet-400/20 blur-3xl" />
           <div
+            className="absolute inset-0 opacity-[0.12]"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginBottom: 32,
-              ...anim(0),
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)",
+              backgroundSize: "28px 28px",
             }}
+          />
+
+          {/* brand */}
+          <Link
+            href="/"
+            className="relative z-10 flex items-center gap-2.5 no-underline w-fit"
           >
-            <Link
-              href="/"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 12,
-                textDecoration: "none",
-              }}
+            <Image
+              src="/logo.png"
+              alt="Brotest"
+              width={40}
+              height={40}
+              className="rounded-xl"
+            />
+            <span className="font-syne text-2xl text-white tracking-tight">
+              Brotest
+            </span>
+          </Link>
+
+          {/* headline + scene */}
+          <div className="relative z-10 my-8">
+            <h1
+              className="font-syne leading-[1.08] tracking-[-0.03em] mb-4"
+              style={{ fontSize: "clamp(28px, 3vw, 42px)" }}
             >
-              <div
-                style={{
-                  width: 52,
-                  height: 52,
-                  background: "#4f46e5",
-                  borderRadius: 18,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 8px 24px rgba(79,70,229,.4)",
-                }}
-              >
-                <svg
-                  width="22"
-                  height="22"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
-              <span
-                className="fs"
-                style={{
-                  fontSize: 24,
-                  color: "#0f172a",
-                  letterSpacing: "-0.025em",
-                }}
-              >
-                Autotest
-              </span>
-            </Link>
-            <p
-              style={{
-                fontSize: 13,
-                color: "#94a3b8",
-                marginTop: 4,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-              }}
-            >
-              Haydovchilik testlari
+              Bilim bilan
+              <br />
+              yo&apos;lga chiqing.
+            </h1>
+            <p className="text-indigo-100/80 text-base max-w-sm leading-relaxed">
+              Minglab talabalar Brotest bilan haydovchilik guvohnomasiga
+              tayyorlanmoqda. Endi navbat sizda.
             </p>
+
+            <div className="mt-6">
+              <AuthScene />
+            </div>
           </div>
 
-          {/* Card */}
+          {/* trust bullets */}
+          <ul className="relative z-10 flex flex-wrap gap-x-6 gap-y-2.5 text-sm text-indigo-100/90">
+            {[
+              "Real imtihon savollari",
+              "Tezkor natija va tahlil",
+              "Bepul boshlash",
+            ].map((t) => (
+              <li key={t} className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                  <svg
+                    width="9"
+                    height="9"
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth="3"
+                    viewBox="0 0 24 24"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* ══ RIGHT — form panel ══ */}
+        <main className="relative flex items-center justify-center px-5 py-10 sm:px-8 min-h-screen lg:min-h-0">
+          {/* mobile ambient background */}
+          <div className="lg:hidden absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-20 -right-16 w-72 h-72 rounded-full bg-indigo-200/40 blur-3xl" />
+            <div className="absolute bottom-0 -left-16 w-72 h-72 rounded-full bg-violet-200/40 blur-3xl" />
+          </div>
+
           <div
+            className="relative w-full max-w-[420px]"
             style={{
-              background: "white",
-              borderRadius: 28,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 4px 24px rgba(0,0,0,.06)",
-              overflow: "hidden",
-              ...anim(80),
+              opacity: vis ? 1 : 0,
+              transform: vis ? "translateY(0)" : "translateY(22px)",
+              transition:
+                "opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1)",
             }}
           >
-            {/* Tab header */}
-            <div
-              style={{
-                display: "flex",
-                borderBottom: "1px solid #f1f5f9",
-                position: "relative",
-              }}
+            {/* brand (mobile) */}
+            <Link
+              href="/"
+              className="lg:hidden flex items-center justify-center gap-2.5 no-underline mb-7"
             >
-              {(["login", "signup"] as Mode[]).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => switchMode(m)}
-                  style={{
-                    flex: 1,
-                    padding: "16px",
-                    border: "none",
-                    background: "transparent",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: mode === m ? "#4f46e5" : "#94a3b8",
-                    cursor: "pointer",
-                    transition: "color .2s",
-                    position: "relative",
-                  }}
-                >
-                  {m === "login" ? "Kirish" : "Ro'yxatdan o'tish"}
-                  {mode === m && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 20,
-                        right: 20,
-                        height: 2,
-                        background: "linear-gradient(90deg,#6366f1,#4f46e5)",
-                        borderRadius: "2px 2px 0 0",
-                      }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
+              <Image
+                src="/logo.png"
+                alt="Brotest"
+                width={40}
+                height={40}
+                className="rounded-xl"
+              />
+              <span className="font-syne text-2xl text-slate-900 tracking-tight">
+                Brotest
+              </span>
+            </Link>
 
-            <div style={{ padding: "28px 32px 32px" }}>
-              {/* Blocked */}
-              {isBlocked && (
-                <div
+            {/* card */}
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-[0_12px_40px_-12px_rgba(15,23,42,0.15)] p-7 sm:p-8">
+              {/* heading */}
+              <div className="mb-6">
+                <h2 className="font-syne text-2xl text-slate-900 tracking-tight mb-1">
+                  {isSignup ? "Hisob yarating" : "Xush kelibsiz"}
+                </h2>
+                <p className="text-sm text-slate-400">
+                  {isSignup
+                    ? "Bir daqiqada ro'yxatdan o'ting"
+                    : "Hisobingizga qaytib kiring"}
+                </p>
+              </div>
+
+              {/* tab switcher with sliding pill */}
+              <div className="relative grid grid-cols-2 p-1 bg-slate-100 rounded-2xl mb-6">
+                <span
+                  className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-xl shadow-sm"
                   style={{
-                    background: "#fff7ed",
-                    border: "1px solid #fed7aa",
-                    borderRadius: 16,
-                    padding: "20px",
-                    marginBottom: 20,
-                    textAlign: "center",
+                    transform: isSignup ? "translateX(100%)" : "translateX(0)",
+                    transition: "transform .34s cubic-bezier(.22,1,.36,1)",
                   }}
-                >
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      background: "#ffedd5",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      margin: "0 auto 10px",
-                    }}
+                />
+                {(["login", "signup"] as Mode[]).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => switchMode(m)}
+                    className={`relative z-10 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 ${
+                      mode === m
+                        ? "text-indigo-600"
+                        : "text-slate-400 hover:text-slate-600"
+                    }`}
                   >
+                    {m === "login" ? "Kirish" : "Ro'yxatdan o'tish"}
+                  </button>
+                ))}
+              </div>
+
+              {/* blocked */}
+              {isBlocked && (
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-5 text-center">
+                  <div className="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2.5">
                     <svg
                       width="16"
                       height="16"
@@ -457,48 +471,21 @@ export default function AuthPage() {
                       <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                   </div>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "#c2410c",
-                      marginBottom: 6,
-                    }}
-                  >
+                  <p className="text-[13px] font-semibold text-orange-700 mb-1.5">
                     Hisob vaqtincha bloklandi
                   </p>
-                  <p
-                    className="fs"
-                    style={{
-                      fontSize: 36,
-                      color: "#ea580c",
-                      letterSpacing: "0.04em",
-                      lineHeight: 1,
-                      marginBottom: 6,
-                    }}
-                  >
+                  <p className="font-syne text-4xl text-orange-600 leading-none tracking-wide mb-1.5">
                     {fmt(blockSecs)}
                   </p>
-                  <p style={{ fontSize: 12, color: "#fb923c" }}>
-                    {blockCount} ta urinishdan qoldi
+                  <p className="text-xs text-orange-400">
+                    5 ta noto&apos;g&apos;ri urinishdan keyin blok
                   </p>
                 </div>
               )}
 
-              {/* Error */}
+              {/* error */}
               {error && !isBlocked && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 10,
-                    background: "#fff1f2",
-                    border: "1px solid #fecdd3",
-                    borderRadius: 14,
-                    padding: "12px 16px",
-                    marginBottom: 18,
-                  }}
-                >
+                <div className="flex items-start gap-2.5 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3 mb-4">
                   <svg
                     width="15"
                     height="15"
@@ -506,34 +493,21 @@ export default function AuthPage() {
                     stroke="#ef4444"
                     strokeWidth="2"
                     viewBox="0 0 24 24"
-                    style={{ flexShrink: 0, marginTop: 1 }}
+                    className="shrink-0 mt-0.5"
                   >
                     <circle cx="12" cy="12" r="10" />
                     <line x1="15" y1="9" x2="9" y2="15" />
                     <line x1="9" y1="9" x2="15" y2="15" />
                   </svg>
-                  <span
-                    style={{ fontSize: 13, color: "#be123c", lineHeight: 1.5 }}
-                  >
+                  <span className="text-[13px] text-rose-700 leading-relaxed">
                     {error}
                   </span>
                 </div>
               )}
 
-              {/* Success */}
+              {/* success */}
               {success && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 10,
-                    background: "#f0fdf4",
-                    border: "1px solid #bbf7d0",
-                    borderRadius: 14,
-                    padding: "12px 16px",
-                    marginBottom: 18,
-                  }}
-                >
+                <div className="flex items-start gap-2.5 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4">
                   <svg
                     width="15"
                     height="15"
@@ -541,487 +515,309 @@ export default function AuthPage() {
                     stroke="#22c55e"
                     strokeWidth="2"
                     viewBox="0 0 24 24"
-                    style={{ flexShrink: 0, marginTop: 1 }}
+                    className="shrink-0 mt-0.5"
                   >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
-                  <span
-                    style={{ fontSize: 13, color: "#15803d", lineHeight: 1.5 }}
-                  >
+                  <span className="text-[13px] text-green-700 leading-relaxed">
                     {success}
                   </span>
                 </div>
               )}
 
-              {/* Form */}
+              {/* form — smooth crossfade + animated height */}
               <form onSubmit={handleSubmit}>
                 <div
                   style={{
-                    opacity: fading ? 0 : 1,
-                    transform: fading ? "translateY(6px)" : "translateY(0)",
-                    transition: "opacity .16s, transform .16s",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 14,
+                    height: paneH,
+                    transition: "height .4s cubic-bezier(.22,1,.36,1)",
+                    overflow: "hidden",
                   }}
                 >
-                  {/* Signup fields */}
-                  {mode === "signup" && (
+                  <div ref={paneRef}>
                     <div
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 12,
+                        opacity: fading ? 0 : 1,
+                        transform: fading
+                          ? "translateY(10px) scale(0.99)"
+                          : "translateY(0) scale(1)",
+                        transition: "opacity .19s ease, transform .19s ease",
                       }}
                     >
-                      {[
-                        {
-                          label: "Ism",
-                          val: firstname,
-                          set: setFirstname,
-                          ph: "Ali",
-                          ac: "given-name",
-                        },
-                        {
-                          label: "Familiya",
-                          val: lastname,
-                          set: setLastname,
-                          ph: "Karimov",
-                          ac: "family-name",
-                        },
-                      ].map((f) => (
-                        <div key={f.label}>
-                          <label
-                            style={{
-                              display: "block",
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: "#64748b",
-                              letterSpacing: "0.06em",
-                              textTransform: "uppercase",
-                              marginBottom: 7,
-                            }}
-                          >
-                            {f.label}
-                          </label>
-                          <input
-                            type="text"
-                            placeholder={f.ph}
-                            value={f.val}
-                            onChange={(e) => f.set(e.target.value)}
-                            autoComplete={f.ac}
-                            disabled={loading}
-                            style={inputStyle()}
-                            onFocus={(e) =>
-                              (e.currentTarget.style.borderColor = "#6366f1")
-                            }
-                            onBlur={(e) =>
-                              (e.currentTarget.style.borderColor = "#e2e8f0")
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Username */}
-                  <div>
-                    <label style={labelStyle}>Username</label>
-                    <div style={{ position: "relative" }}>
-                      <span
-                        style={{
-                          position: "absolute",
-                          left: 14,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          color: "#94a3b8",
-                        }}
+                      <div
+                        key={mode}
+                        className="auth-stagger flex flex-col gap-3.5"
                       >
-                        <svg
-                          width="15"
-                          height="15"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                          <circle cx="12" cy="7" r="4" />
-                        </svg>
-                      </span>
-                      <input
-                        type="text"
-                        placeholder="ali_karimov"
-                        value={username}
-                        onChange={(e) =>
-                          setUsername(
-                            e.target.value
-                              .toLowerCase()
-                              .replace(/[^a-z0-9_]/g, ""),
-                          )
-                        }
-                        autoComplete="username"
-                        disabled={loading || isBlocked}
-                        required
-                        style={{ ...inputStyle(), paddingLeft: 40 }}
-                        onFocus={(e) =>
-                          (e.currentTarget.style.borderColor = "#6366f1")
-                        }
-                        onBlur={(e) =>
-                          (e.currentTarget.style.borderColor = "#e2e8f0")
-                        }
-                      />
-                    </div>
-                    {mode === "signup" &&
-                      username.length > 0 &&
-                      username.length < 3 && (
-                        <p
-                          style={{
-                            fontSize: 12,
-                            color: "#f59e0b",
-                            marginTop: 5,
-                          }}
-                        >
-                          Kamida 3 ta belgi kerak
-                        </p>
-                      )}
-                  </div>
-
-                  {/* Password */}
-                  <div>
-                    <label style={labelStyle}>Parol</label>
-                    <div style={{ position: "relative" }}>
-                      <span
-                        style={{
-                          position: "absolute",
-                          left: 14,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          color: "#94a3b8",
-                        }}
-                      >
-                        <svg
-                          width="15"
-                          height="15"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <rect x="3" y="11" width="18" height="11" rx="2" />
-                          <path d="M7 11V7a5 5 0 0110 0v4" />
-                        </svg>
-                      </span>
-                      <input
-                        type={showPass ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        autoComplete={
-                          mode === "login" ? "current-password" : "new-password"
-                        }
-                        disabled={loading || isBlocked}
-                        required
-                        minLength={6}
-                        style={{
-                          ...inputStyle(),
-                          paddingLeft: 40,
-                          paddingRight: 44,
-                        }}
-                        onFocus={(e) =>
-                          (e.currentTarget.style.borderColor = "#6366f1")
-                        }
-                        onBlur={(e) =>
-                          (e.currentTarget.style.borderColor = "#e2e8f0")
-                        }
-                      />
-                      <button
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => setShowPass((v) => !v)}
-                        style={{
-                          position: "absolute",
-                          right: 12,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          color: "#94a3b8",
-                          display: "flex",
-                          alignItems: "center",
-                          padding: 4,
-                          borderRadius: 6,
-                          transition: "color .15s",
-                        }}
-                        onMouseEnter={(e) =>
-                          ((e.currentTarget as HTMLElement).style.color =
-                            "#4f46e5")
-                        }
-                        onMouseLeave={(e) =>
-                          ((e.currentTarget as HTMLElement).style.color =
-                            "#94a3b8")
-                        }
-                      >
-                        {showPass ? (
-                          <svg
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                            <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                            <line x1="1" y1="1" x2="23" y2="23" />
-                          </svg>
-                        ) : (
-                          <svg
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                            <circle cx="12" cy="12" r="3" />
-                          </svg>
+                        {/* Signup: ism + familiya */}
+                        {isSignup && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className={labelCls}>Ism</label>
+                              <input
+                                type="text"
+                                placeholder="Ali"
+                                value={firstname}
+                                onChange={(e) => setFirstname(e.target.value)}
+                                autoComplete="given-name"
+                                disabled={loading}
+                                className={inputCls}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelCls}>Familiya</label>
+                              <input
+                                type="text"
+                                placeholder="Karimov"
+                                value={lastname}
+                                onChange={(e) => setLastname(e.target.value)}
+                                autoComplete="family-name"
+                                disabled={loading}
+                                className={inputCls}
+                              />
+                            </div>
+                          </div>
                         )}
-                      </button>
-                    </div>
 
-                    {/* Login: attempt dots */}
-                    {mode === "login" && attempts > 0 && !isBlocked && (
-                      <div style={{ display: "flex", gap: 5, marginTop: 8 }}>
-                        {[...Array(MAX_ATTEMPTS)].map((_, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              flex: 1,
-                              height: 3,
-                              borderRadius: 999,
-                              background: i < attempts ? "#ef4444" : "#e2e8f0",
-                              transition: "background .3s",
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Signup: password strength */}
-                    {mode === "signup" && password.length > 0 && (
-                      <div style={{ marginTop: 8 }}>
-                        <div style={{ display: "flex", gap: 4 }}>
-                          {[1, 2, 3, 4].map((i) => (
-                            <div
-                              key={i}
-                              style={{
-                                flex: 1,
-                                height: 3,
-                                borderRadius: 999,
-                                background:
-                                  i <= strength.level
-                                    ? strength.color
-                                    : "#e2e8f0",
-                                transition: "background .3s",
-                              }}
+                        {/* Username */}
+                        <div>
+                          <label className={labelCls}>Username</label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                              <svg
+                                width="15"
+                                height="15"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                              </svg>
+                            </span>
+                            <input
+                              type="text"
+                              placeholder="ali_karimov"
+                              value={username}
+                              onChange={(e) =>
+                                setUsername(
+                                  e.target.value
+                                    .toLowerCase()
+                                    .replace(/[^a-z0-9_]/g, ""),
+                                )
+                              }
+                              autoComplete="username"
+                              disabled={loading || isBlocked}
+                              required
+                              className={`${inputCls} pl-10`}
                             />
-                          ))}
+                          </div>
+                          {isSignup &&
+                            username.length > 0 &&
+                            username.length < 3 && (
+                              <p className="text-xs text-amber-500 mt-1.5">
+                                Kamida 3 ta belgi kerak
+                              </p>
+                            )}
                         </div>
-                        <p
-                          style={{
-                            fontSize: 12,
-                            color: "#64748b",
-                            marginTop: 5,
-                          }}
-                        >
-                          Parol kuchi:{" "}
-                          <span
-                            style={{ fontWeight: 600, color: strength.color }}
-                          >
-                            {strength.label}
-                          </span>
-                        </p>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={loading || isBlocked}
-                    style={{
-                      width: "100%",
-                      background: loading || isBlocked ? "#a5b4fc" : "#4f46e5",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 14,
-                      padding: "14px",
-                      fontSize: 15,
-                      fontWeight: 700,
-                      cursor: loading || isBlocked ? "not-allowed" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      boxShadow:
-                        loading || isBlocked
-                          ? "none"
-                          : "0 6px 20px rgba(79,70,229,.35)",
-                      transition: "all .2s",
-                      marginTop: 4,
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!loading && !isBlocked) {
-                        (e.currentTarget as HTMLElement).style.background =
-                          "#4338ca";
-                        (e.currentTarget as HTMLElement).style.transform =
-                          "translateY(-1px)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!loading && !isBlocked) {
-                        (e.currentTarget as HTMLElement).style.background =
-                          "#4f46e5";
-                        (e.currentTarget as HTMLElement).style.transform =
-                          "translateY(0)";
-                      }
-                    }}
-                  >
-                    {loading ? (
-                      <>
-                        <svg
-                          style={{ animation: "spin .7s linear infinite" }}
-                          width="16"
-                          height="16"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            style={{ opacity: 0.25 }}
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            style={{ opacity: 0.75 }}
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v8H4z"
-                          />
-                        </svg>
-                        {mode === "login"
-                          ? "Kirilmoqda..."
-                          : "Ro'yxatdan o'tilmoqda..."}
-                      </>
-                    ) : mode === "login" ? (
-                      "Kirish →"
-                    ) : (
-                      "Ro'yxatdan o'tish →"
-                    )}
-                  </button>
+                        {/* Password */}
+                        <div>
+                          <label className={labelCls}>Parol</label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                              <svg
+                                width="15"
+                                height="15"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                              >
+                                <rect x="3" y="11" width="18" height="11" rx="2" />
+                                <path d="M7 11V7a5 5 0 0110 0v4" />
+                              </svg>
+                            </span>
+                            <input
+                              type={showPass ? "text" : "password"}
+                              placeholder="••••••••"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              autoComplete={
+                                isSignup ? "new-password" : "current-password"
+                              }
+                              disabled={loading || isBlocked}
+                              required
+                              minLength={6}
+                              className={`${inputCls} pl-10 pr-11`}
+                            />
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              onClick={() => setShowPass((v) => !v)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors p-1"
+                            >
+                              {showPass ? (
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                                  <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                                  <line x1="1" y1="1" x2="23" y2="23" />
+                                </svg>
+                              ) : (
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                  <circle cx="12" cy="12" r="3" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Login: attempt dots */}
+                          {!isSignup && attempts > 0 && !isBlocked && (
+                            <div className="flex gap-1.5 mt-2">
+                              {[...Array(MAX_ATTEMPTS)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="flex-1 h-[3px] rounded-full transition-colors duration-300"
+                                  style={{
+                                    background:
+                                      i < attempts ? "#ef4444" : "#e2e8f0",
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Signup: password strength */}
+                          {isSignup && password.length > 0 && (
+                            <div className="mt-2">
+                              <div className="flex gap-1">
+                                {[1, 2, 3, 4].map((i) => (
+                                  <div
+                                    key={i}
+                                    className="flex-1 h-[3px] rounded-full transition-colors duration-300"
+                                    style={{
+                                      background:
+                                        i <= strength.level
+                                          ? strength.color
+                                          : "#e2e8f0",
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-xs text-slate-400 mt-1.5">
+                                Parol kuchi:{" "}
+                                <span
+                                  className="font-semibold"
+                                  style={{ color: strength.color }}
+                                >
+                                  {strength.label}
+                                </span>
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* submit */}
+                <button
+                  type="submit"
+                  disabled={loading || isBlocked}
+                  className="group w-full mt-5 flex items-center justify-center gap-2 bg-indigo-600 enabled:hover:bg-indigo-700 enabled:hover:-translate-y-0.5 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white font-bold text-[15px] py-3.5 rounded-2xl shadow-lg shadow-indigo-200 enabled:hover:shadow-xl enabled:hover:shadow-indigo-300 transition-all"
+                >
+                  {loading ? (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        style={{ animation: "spin .7s linear infinite" }}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          style={{ opacity: 0.25 }}
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          style={{ opacity: 0.75 }}
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        />
+                      </svg>
+                      {isSignup ? "Ro'yxatdan o'tilmoqda..." : "Kirilmoqda..."}
+                    </>
+                  ) : (
+                    <>
+                      {isSignup ? "Ro'yxatdan o'tish" : "Kirish"}
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        viewBox="0 0 24 24"
+                        className="group-enabled:group-hover:translate-x-0.5 transition-transform"
+                      >
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </>
+                  )}
+                </button>
               </form>
 
-              {/* Switch mode */}
-              <p
-                style={{
-                  textAlign: "center",
-                  fontSize: 13,
-                  color: "#94a3b8",
-                  marginTop: 20,
-                }}
-              >
-                {mode === "login" ? "Hisobingiz yo'qmi?" : "Hisobingiz bormi?"}{" "}
+              {/* switch mode */}
+              <p className="text-center text-sm text-slate-400 mt-5">
+                {isSignup ? "Hisobingiz bormi?" : "Hisobingiz yo'qmi?"}{" "}
                 <button
-                  onClick={() =>
-                    switchMode(mode === "login" ? "signup" : "login")
-                  }
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#4f46e5",
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    padding: 0,
-                    transition: "color .15s",
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color = "#4338ca")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color = "#4f46e5")
-                  }
+                  type="button"
+                  onClick={() => switchMode(isSignup ? "login" : "signup")}
+                  className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
                 >
-                  {mode === "login" ? "Ro'yxatdan o'ting" : "Kiring"}
+                  {isSignup ? "Kiring" : "Ro'yxatdan o'ting"}
                 </button>
               </p>
             </div>
+
+            {/* back link */}
+            <p className="text-center mt-5 text-sm">
+              <Link
+                href="/"
+                className="text-slate-400 hover:text-indigo-600 transition-colors no-underline"
+              >
+                ← Bosh sahifaga qaytish
+              </Link>
+            </p>
           </div>
-
-          {/* Back link */}
-          <p
-            style={{
-              textAlign: "center",
-              marginTop: 20,
-              fontSize: 13,
-              ...anim(160),
-            }}
-          >
-            <Link
-              href="/"
-              style={{
-                color: "#94a3b8",
-                textDecoration: "none",
-                transition: "color .15s",
-              }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.color = "#4f46e5")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.color = "#94a3b8")
-              }
-            >
-              ← Bosh sahifaga qaytish
-            </Link>
-          </p>
-        </div>
+        </main>
       </div>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </>
   );
 }
 
-// ── Style helpers ──────────────────────────────
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: 11,
-  fontWeight: 700,
-  color: "#64748b",
-  letterSpacing: "0.06em",
-  textTransform: "uppercase",
-  marginBottom: 7,
-};
+// ── style helpers ──────────────────────────────
+const labelCls =
+  "block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5";
 
-function inputStyle(): React.CSSProperties {
-  return {
-    width: "100%",
-    boxSizing: "border-box",
-    background: "#f8f9fc",
-    border: "2px solid #e2e8f0",
-    borderRadius: 12,
-    padding: "11px 14px",
-    fontSize: 14,
-    color: "#0f172a",
-    outline: "none",
-    transition: "border-color .2s, background .2s",
-    fontFamily: "inherit",
-  };
-}
+const inputCls =
+  "w-full box-border bg-slate-50 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-indigo-500 focus:bg-white placeholder:text-slate-400 disabled:opacity-60";
